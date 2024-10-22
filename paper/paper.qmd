@@ -1,0 +1,610 @@
+---
+title: "Forcasting US Election 2024"
+subtitle: "##TODO: result here"
+author: 
+  - Maryam Ansari
+  - Amy Jin
+  - Maggie Zhang
+  
+thanks: "Code and data are available at: [https://github.com/aj3616/Forcasting-US-Elections](https://github.com/aj3616/Forcasting-US-Elections)."
+date: today
+date-format: long
+abstract: "first sentence: specify the general area of the paper and encourage the reader; second sentence: specify the dataset and methods at a general level; third sentence: specify the headline result; and a fourth sentence about implications"
+format: pdf
+number-sections: true
+bibliography: references.bib
+---
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(gt)
+library(ggplot2)
+library(tidyr)
+data = read_csv(here::here("data/02-analysis_data/analysis_data.csv"))
+```
+
+# Introduction
+
+As of October-November 2024, the U.S. presidential election is almost at its final stage, with all candidates actively campaigning across numerous states. The presidential election will happen on November 5, 2024 (@calendar). The two major parties, Democrats and Republicans, are in particular focus. Former President Donald Trump represents the Republican party, and President Joe Biden initially led re-election for the Democrats. However, Biden has dropped out, and Kamala Harris has taken over as the Democratic nominee (@g24), who is the first Black woman nominee. Harris is the Both candidates are focusing their efforts on securing votes by addressing their aspect on social issues. pollsters and election forecasting with data evidence are important in predicting election outcomes. Polling can highlight underlying or emerging issues, as well as reveal voter preferences. The polling outcomes allow campaigns of different parties to strategically target specific demographics. For example in 2012, pollsters and data modellers such as Nate Silver have all used survey research and statistical models to successfully predict the result of Barack Obama's victory in the presidential election with consistent and reliable forecasts (@b17).
+
+The remainder of this paper is structured as follows. @sec-data....
+
+# Polling Data {#sec-data}
+
+## Overview
+
+We use the polling data to forecast the potential outcomes of the 2024 U.S. presidential election between Kamala Harris and Donald Trump.The dataset was obtained from https://projects.fivethirtyeight.com/polls/president-general/2024/national/ or (FiveThirtyEight’s “Poll of Polls” for the 2024 U.S. Presidential election [@fivethirtyeight]). It provides a comprehensive view of voter preferences through aggregated results from numerous national polls conducted by various polling organizations. The dataset was simulated, cleaned, analyzed, and tested using the R programming language [@citeR], tidyverse [@citetidyverse], knitr [@citeknitr], janitor [@citejanitor], dplyr [@citedplyr], ggplot2 [@citeggplot2].
+
+## Variables
+
+The dataset comprises several key variables of interest, including poll_id, a unique identifier for each poll conducted; pollster, which indicates the organization conducting the poll; sample_size, representing the total number of respondents; population, specifying the voting group described (e.g., likely voters); candidate_name, the names of the candidates in the poll (e.g., Kamala Harris, Donald Trump); and pct, the percentage of the vote or support received by each candidate. These variables allow us to explore various dimensions of polling data, such as trends in voter support across different states and the influence of pollster reliability on polling outcomes. The (@tbl-firstten) below provides a snapshot of the polling data, displaying the first ten entries. This includes the pollster names, sample sizes, and the percentage of support for each candidate, which can reveal patterns in public opinion and help identify how different organizations may report varying levels of support for Kamala Harris and Donald Trump.
+
+```{r}
+#| label: tbl-firstten
+#| tbl-cap: "Sample sizes and support percentages for Kamala Harris and Donald Trump"
+#| echo: false
+# Drop rows with NA values and select only the relevant columns
+firstten_data <- drop_na(data) %>%
+  select(pollster_id, pollster, sample_size, population, candidate_name, pct)
+
+# Get the first 10 entries
+first_ten_entries <- firstten_data %>%
+  slice(1:10)
+
+# Create the gt table with only the selected columns
+firstten <- first_ten_entries %>%
+  gt() %>%
+  tab_header(
+    title = "Polling Data Snapshot: 2024 U.S. Presidential Election",
+  ) %>%
+  cols_label(
+    pollster_id = "Poll ID",
+    pollster = "Pollster",
+    sample_size = "Sample Size",
+    population = "Population",
+    candidate_name = "Candidate",
+    pct = "Support (%)"
+  ) %>%
+  fmt_number(
+    columns = c(sample_size, pct),
+    decimals = 0
+  )
+
+# Display the gt table
+firstten
+
+```
+
+## Summary statistics & Relationships
+
+### Pollster Reliability and Election Outcome
+
+The relationship between polling organization reliability, as indicated by the pollscore, and the percentage of support (pct) for each candidate was examined. It is anticipated that more reliable pollsters will yield more accurate predictions. Consequently, polls were categorized into three tiers based on their pollscore: high reliability (pollscore greater than 0), medium reliability (pollscore between -1 and 0), and low reliability (pollscore less than -1). By comparing the average support percentages (pct) for Kamala Harris and Donald Trump across these tiers, this analysis sought to identify whether more reliable pollsters produce different outcomes than those deemed less reliable. Mean pct values were calculated for each category, and standard deviation was included to illustrate variability within the poll results. The table(@tbl-reliability) and bar chart(@fig-reliability) showing the average `pct` for each candidate across different levels of pollster reliability. Discussion: This analysis highlights whether pollsters with higher reliability scores offer more accurate predictions and if their estimates favor one candidate over the other.
+
+```{r}
+#| label: tbl-reliability
+#| tbl-cap: "Mean and Standard Deviation of Support Percentages (pct) for Kamala Harris and Donald Trump Across Pollster Reliability Levels"
+#| echo: false
+# Categorizing poll reliability
+# Create a new dataset with categorized reliability
+# Remove rows with NA values in the 'pollscore' column while keeping the rest of the data frame
+pollscore_data <- data %>%
+  filter(!is.na(pollscore)) %>%
+  mutate(
+    reliability = case_when(
+      pollscore > 0 ~ "High",
+      pollscore > -1 & pollscore <= 0 ~ "Medium",
+      pollscore <= -1 ~ "Low"
+    )
+  )
+
+
+# Calculate mean and standard deviation for each candidate across reliability levels
+summary_data <- pollscore_data %>%
+  group_by(candidate_name, reliability) %>%
+  summarise(
+    mean_pct = mean(pct),
+    sd_pct = sd(pct),
+    .groups = 'drop'
+  )
+reliability_table <- summary_data %>%
+  gt() %>%
+  tab_header(
+    title = "Polling Data Summary: Pollster Reliability and Support Percentages"
+  ) %>%
+  cols_label(
+    candidate_name = "Candidate",
+    reliability = "Pollster Reliability",
+    mean_pct = "Mean Support (%)",
+    sd_pct = "Standard Deviation"
+  ) %>%
+  fmt_number(
+    columns = c(mean_pct, sd_pct),
+    decimals = 2
+  )
+
+reliability_table
+```
+
+```{r}
+#| label: fig-reliability
+#| fig-cap: "Graph of Dates Categorized by Year and Presented by Each Months"
+#| echo: false
+library(ggplot2)
+
+# Create a more aesthetic bar chart with alpha and no labels
+ggplot(summary_data, aes(x = reliability, y = mean_pct, fill = candidate_name)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 0.7, color = "black", alpha = 0.8) +
+  geom_errorbar(aes(ymin = mean_pct - sd_pct, ymax = mean_pct + sd_pct), 
+                width = 0.2, 
+                position = position_dodge(0.7)) +
+  labs(
+    title = "Average Support Percentage by Pollster Reliability",
+    subtitle = "Comparison of support percentages for Kamala Harris and Donald Trump",
+    x = "Pollster Reliability",
+    y = "Average Support (%)",
+    fill = "Candidate"
+  ) +
+  scale_fill_manual(values = c("Kamala Harris" = "#1f78b4", "Donald Trump" = "#e31a1c")) + # Custom colors
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5, size = 16),
+    plot.subtitle = element_text(hjust = 0.5, size = 12),
+    axis.title.x = element_text(face = "bold", margin = margin(t = 10)),
+    axis.title.y = element_text(face = "bold", margin = margin(r = 10)),
+    legend.position = "top",
+    legend.title = element_text(face = "bold")
+  )
+
+
+
+```
+
+### Impact of Methodology on Poll Results
+
+Polling methodology is a critical factor that influences the results of any survey. Polls were categorized according to their methodology (e.g., Online Panel, Phone Interview) to evaluate how different polling methods might affect the percentage of support (pct) for each candidate. For each polling methodology, the average pct for Kamala Harris and Donald Trump was calculated and compared. This analysis aimed to determine whether specific methodologies consistently resulted in higher or lower support for either candidate. Comparison of candidate vote percentages by polling methodology is demonstrated by (@tbl-methodology) Discussion: We observed potential biases in support based on the polling method, providing insights into which methodologies might offer more reliable forecasts.
+
+```{r}
+#| label: tbl-methodology
+#| tbl-cap: "Table of Methodologies comparing the Mean Support Percentage for Donald Trump and Kamala Harris with Difference (Kamala Harris - Donald Trump)"
+#| echo: false
+
+library(tidyverse)
+library(gt)
+
+# Define the 11 categories
+categories <- c("Mail-to-Phone", "Mail-to-Web", "Email", "Live Phone", 
+                "Online Ad", "Text", "IVR", "Probability Panel", 
+                "Text-to-Web", "App Panel", "Online Panel")
+
+# Split the methodology and categorize into the 11 categories
+categorized_data <- data %>%
+  filter(!is.na(methodology)) %>%
+  filter(candidate_name %in% c("Kamala Harris", "Donald Trump")) %>%
+  separate_rows(methodology, sep = "/") %>%
+  filter(methodology %in% categories) %>%
+  group_by(candidate_name, methodology) %>%
+  summarise(
+    mean_pct = mean(pct, na.rm = TRUE),  # Calculate mean with NA removal if necessary
+    .groups = 'drop'
+  ) %>%
+  pivot_wider(
+    names_from = candidate_name,
+    values_from = mean_pct,
+    values_fill = list(`Donald Trump` = 0, `Kamala Harris` = 0)  # Fill missing values with 0
+  )
+
+# Rename the columns explicitly
+categorized_data <- categorized_data %>%
+  rename(
+    `Donald Trump Mean Support (%)` = `Donald Trump`,
+    `Kamala Harris Mean Support (%)` = `Kamala Harris`
+  ) %>%
+  mutate(
+    Difference = `Kamala Harris Mean Support (%)` - `Donald Trump Mean Support (%)`
+  )
+
+# Create a table using the gt package
+reliability_table <- categorized_data %>%
+  gt() %>%
+  tab_header(
+    title = "Polling Data Summary: Methodology and Support Percentages",
+    subtitle = "Mean Support Percentages (pct) for Kamala Harris and Donald Trump by Polling Methodology Category"
+  ) %>%
+  cols_label(
+    methodology = "Polling Methodology",
+    `Donald Trump Mean Support (%)` = "Trump(%)",
+    `Kamala Harris Mean Support (%)` = "Harris(%)",
+    Difference = "Difference"
+  ) %>%
+  fmt_number(
+    columns = c(`Donald Trump Mean Support (%)`, `Kamala Harris Mean Support (%)`, Difference),
+    decimals = 2
+  )
+# Display the table
+reliability_table
+
+```
+
+### State-by-State Polling Trends
+
+Given the importance of state-level polling data in U.S. presidential elections, this analysis focused on key battleground states (e.g., Florida, Pennsylvania, Wisconsin). The polling results for Kamala Harris and Donald Trump were examined by state (state), and the average pct was calculated for each swing state. These trends were visualized to assess whether one candidate consistently received more support in these critical states, as such patterns could significantly influence the final election outcome. A state-by-state breakdown of the polling percentages for each candidate, with a focus on swing states is shown by (@fig-state). Discussion: The results highlight key states where the election might be decided, helping to pinpoint potential trends favoring one candidate.
+
+```{r}
+#| label: fig-state
+#| fig-cap: "Graph of Dates Categorized by Year and Presented by Each Months"
+#| echo: false
+# Calculate average pct by state and candidate
+library(tidyverse)
+library(ggplot2)
+
+# Filter out rows with NA values in the 'state' column and keep only rows for Kamala Harris and Donald Trump
+filtered_data <- data %>%
+  filter(!is.na(state)) %>%
+  filter(candidate_name %in% c("Kamala Harris", "Donald Trump"))
+
+# Calculate the average support percentage for each candidate by state
+state_summary_data <- filtered_data %>%
+  group_by(state, candidate_name) %>%
+  summarise(
+    avg_pct = mean(pct),
+    .groups = 'drop'
+  )
+
+# Create a state-by-state breakdown bar plot of polling percentages
+ggplot(state_summary_data, aes(x = state, y = avg_pct, fill = candidate_name)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 0.7) +
+  labs(
+    title = "State-by-State Polling Trends in Key Battleground States",
+    subtitle = "Average support percentages for Kamala Harris and Donald Trump",
+    x = "State",
+    y = "Average Support Percentage (%)",
+    fill = "Candidate"
+  ) +
+  scale_fill_manual(values = c("Kamala Harris" = "#1f78b4", "Donald Trump" = "#e31a1c")) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5, size = 16),
+    plot.subtitle = element_text(hjust = 0.5, size = 12),
+    axis.title.x = element_text(face = "bold", margin = margin(t = 10)),
+    axis.title.y = element_text(face = "bold", margin = margin(r = 10)),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top",
+    legend.title = element_text(face = "bold")
+  )
+
+
+```
+
+### Sample Size and Poll Accuracy
+
+The impact of sample size (sample_size) on the accuracy of polling results was examined. Larger sample sizes are typically considered more reliable, prompting the categorization of polls into small, medium, and large groups based on sample size. For each group, the average percentage of support (pct) for Kamala Harris and Donald Trump was calculated, and variability within each sample size category was analyzed to evaluate the reliability of the results. A chart(@fig-samplesize) comparing candidate vote percentages by sample size category. Discussion: The results suggest whether larger sample sizes produce more accurate and reliable forecasts, helping us to understand the potential limitations of smaller polls.
+
+```{r}
+#| label: fig-samplesize
+#| fig-cap: "Graph of Dates Categorized by Year and Presented by Each Months"
+#| echo: false
+# Categorizing sample size into small, medium, and large groups
+library(tidyverse)
+library(ggplot2)
+
+# Remove rows with NA values in the 'sample_size' column and keep only rows for Kamala Harris and Donald Trump
+filtered_data <- data %>%
+  filter(!is.na(sample_size)) %>%
+  filter(candidate_name %in% c("Kamala Harris", "Donald Trump"))
+
+# Categorize sample size into small, medium, and large groups
+filtered_data <- filtered_data %>%
+  mutate(
+    sample_size_category = case_when(
+      sample_size <= 1000 ~ "Small",
+      sample_size > 1000 & sample_size <= 1500 ~ "Medium",
+      sample_size > 1500 ~ "Large"
+    )
+  )
+
+# Calculate average pct and standard deviation by sample size category and candidate
+summary_data_sample_size <- filtered_data %>%
+  group_by(candidate_name, sample_size_category) %>%
+  summarise(
+    avg_pct = mean(pct),
+    sd_pct = sd(pct),
+    .groups = 'drop'
+  )
+
+# Create the chart comparing candidate vote percentages by sample size category
+ggplot(summary_data_sample_size, aes(x = sample_size_category, y = avg_pct, fill = candidate_name)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 0.7, color = "black", alpha = 0.8) +
+  geom_errorbar(aes(ymin = avg_pct - sd_pct, ymax = avg_pct + sd_pct), 
+                width = 0.2, 
+                position = position_dodge(0.7)) +
+  labs(
+    title = "Candidate Vote Percentages by Sample Size Category",
+    subtitle = "Average support percentages for Kamala Harris and Donald Trump based on sample size groups",
+    x = "Sample Size Category",
+    y = "Average Support Percentage (%)",
+    fill = "Candidate"
+  ) +
+  scale_fill_manual(values = c("Kamala Harris" = "#1f78b4", "Donald Trump" = "#e31a1c")) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5, size = 16),
+    plot.subtitle = element_text(hjust = 0.5, size = 12),
+    axis.title.x = element_text(face = "bold", margin = margin(t = 10)),
+    axis.title.y = element_text(face = "bold", margin = margin(r = 10)),
+    legend.position = "top",
+    legend.title = element_text(face = "bold")
+  )
+
+
+```
+
+Alternate Analysis Data 5: Sponsorship and Bias in Polling Finally, the potential bias of polls sponsored by partisan organizations was assessed to determine whether such sponsorship influenced support for the associated candidate. The vote percentages (pct) for Kamala Harris and Donald Trump were compared in polls sponsored by Democratic-leaning and Republican-leaning organizations (sponsor_candidate_party). By calculating the average pct for each candidate within partisan-sponsored polls, this analysis explored whether partisan sponsorship resulted in a systematic overestimation of support for a particular candidate. A comparison of the polling results in partisan-sponsored polls, broken down by party affiliation is shown by (@fig-sponsorship). Discussion: This analysis reveals potential biases in partisan-sponsored polls and assesses the objectivity of different polling organizations.
+
+```{r}
+#| label: fig-sponsorship
+#| fig-cap: "Graph of Dates Categorized by Year and Presented by Each Months"
+#| echo: false
+# Calculate the average pct and standard deviation for each candidate by sponsorship type
+sponsorship_summary_data <- data %>%
+  filter(sponsor_candidate_party != "Non-Partisan") %>%  # Focus on partisan-sponsored polls
+  group_by(candidate_name, sponsor_candidate_party) %>%
+  summarise(
+    avg_pct = mean(pct),
+    sd_pct = sd(pct),
+    .groups = 'drop'
+  )
+library(ggplot2)
+
+# Create the bar chart comparing vote percentages by sponsorship type
+ggplot(sponsorship_summary_data, aes(x = sponsor_candidate_party, y = avg_pct, fill = candidate_name)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 0.7, color = "black", alpha = 0.8) +
+  geom_errorbar(aes(ymin = avg_pct - sd_pct, ymax = avg_pct + sd_pct), 
+                width = 0.2, 
+                position = position_dodge(0.7)) +
+  labs(
+    title = "Vote Percentages by Partisan Sponsorship",
+    subtitle = "Average support percentages for Kamala Harris and Donald Trump in partisan-sponsored polls",
+    x = "Sponsorship (Party Affiliation)",
+    y = "Average Support Percentage (%)",
+    fill = "Candidate"
+  ) +
+  scale_fill_manual(values = c("Kamala Harris" = "#1f78b4", "Donald Trump" = "#e31a1c")) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5, size = 16),
+    plot.subtitle = element_text(hjust = 0.5, size = 12),
+    axis.title.x = element_text(face = "bold", margin = margin(t = 10)),
+    axis.title.y = element_text(face = "bold", margin = margin(r = 10)),
+    axis.text.x = element_text(angle = 0, hjust = 0.5),
+    legend.position = "top",
+    legend.title = element_text(face = "bold")
+  )
+
+```
+
+## Measurement
+
+Some paragraphs about how we go from a phenomena in the world to an entry in the dataset. A thorough discussion of measurement, relating to the dataset, is provided in the data section. Please ensure that you explain how we went from some phenomena in the world that happened to an entry in the dataset that you are interested in.
+
+## Outcome variables
+
+Add graphs, tables and text. Use sub-sub-headings for each outcome variable or update the subheading to be singular.
+
+Some of our data is of penguins (@fig-bills), from @palmerpenguins.
+
+Talk more about it.
+
+And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
+
+Talk way more about it.
+
+## Predictor variables
+
+Add graphs, tables and text.
+
+Use sub-sub-headings for each outcome variable and feel free to combine a few into one if they go together naturally.
+
+# Model
+
+The goal of our modelling strategy is twofold. Firstly,...
+
+Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
+
+The model should be nicely written out, well-explained, justified, and appropriate.
+
+Detail the statistical model used, defining and explaining each aspect and its importance, and ensure that variables are well-defined and correspond with those discussed in the data section.
+
+The model should have an appropriate balance of complexity—neither overly simplistic nor unnecessarily complicated—and be justified as suitable for the situation.
+
+## Modeling decisions
+
+Explain how decisions made in modeling reflect the aspects discussed in the data section, including why specific features are included (e.g., why use age rather than age-groups, treating province effects as levels, categorizing gender, etc?).
+
+## Mathematical notations
+
+Present the model using appropriate mathematical notation supplemented with plain English explanations, defining every component. If applicable, define sensible priors for Bayesian models.
+
+## Assumptions, limitations, circumstances
+
+Clearly discuss the underlying assumptions, potential limitations, and circumstances where the model may not be appropriate.
+
+## Software & model validation
+
+Mention the software used to implement the model, and provide evidence of model validation and checking—such as out-of-sample testing, RMSE calculations, test/training splits, or sensitivity analyses—while addressing model convergence, diagnostics, and any alternative models or variants considered,
+
+## Strenth and weeknesses and final choice
+
+including their strengths and weaknesses and the rationale for the final model choice.
+
+## Model set-up
+
+Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.
+
+```{=tex}
+\begin{align} 
+y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
+\mu_i &= \alpha + \beta_i + \gamma_i\\
+\alpha &\sim \mbox{Normal}(0, 2.5) \\
+\beta &\sim \mbox{Normal}(0, 2.5) \\
+\gamma &\sim \mbox{Normal}(0, 2.5) \\
+\sigma &\sim \mbox{Exponential}(1)
+\end{align}
+```
+We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
+
+### Model justification
+
+We expect a positive relationship between the size of the wings and time spent aloft. In particular...
+
+We can use maths by including latex between dollar signs, for instance $\theta$.
+
+# Results
+
+Our results are summarized in @tbl-modelresults.
+
+Results will likely require summary statistics, tables, graphs, images, and possibly statistical analysis or maps. There should also be text associated with all these aspects.
+
+Show the reader the results by plotting them where possible. Talk about them. Explain them. That said, this section should strictly relay results.
+
+Regression tables must not contain stars.
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+
+library(rstanarm)
+
+first_model <-
+  readRDS(file = here::here("models/first_model.rds"))
+```
+
+```{r}
+#| echo: false
+#| eval: true
+#| label: tbl-modelresults
+#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
+#| warning: false
+
+modelsummary::modelsummary(
+  list(
+    "First model" = first_model
+  ),
+  statistic = "mad",
+  fmt = 2
+)
+```
+
+# Discussion
+
+## What is done in this paper? {#sec-first-point}
+
+If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this.
+
+## What is something that we learn about the world?
+
+Please don't use these as sub-heading labels - change them to be what your point actually is.
+
+## What is another thing that we learn about the world?
+
+## Weaknesses and next steps
+
+What are some weaknesses of what was done? What is left to learn or how should we proceed in the future?
+
+Weaknesses and next steps should also be included.
+
+\newpage
+
+\appendix
+
+# Appendix 1 {.unnumbered}
+
+YouGov has been a popular polling organization in predicting U.S. elections for a long time, they have experience predicting US elections in the past. One of the key reasons for us to select YouGov to dive into it is their innovative use of an advanced statistical model known as Multilevel Regression with Post-stratification (MRP). This model allows YouGov to have detailed predictions by using survey data with demographic background information, ensuring the representativeness of broader populations.
+
+Moreover, FiveThirtyEight found that YouGov did not exhibit a strong house effect during the 2016 U.S. election, meaning they did not show a bias toward any political party(@n16), this further built up their credibility. Their model is intended to predict the votes of everyone in the US national voter file. YouGov’s MRP model used to predict support for each candidate in the US 2024 presidential election has three parts. Firstly, they will use people’s responses in the survey to estimate the likelihood of voting. From here, calculate their probability of voting for a specific party if people will vote. Combined and reweight responses, to give predictions for candidates (@br24). 
+
+## Frame and sample 
+
+YouGov's frame of the sample is people in the YouGov panel which use a nonprobability sampling. Everyone can join the YouGov panel, and YouGov will recruit participants (the sample) to the survey with a rigours process. YouGov recruits American adults through various advertising methods and partnerships. They also offer surveys in multiple languages.
+
+By completing surveys, participants earn points which can be exchanged for monetary rewards or vendor equivalents (@m). YouGov will invite a representative set of panellists from their panel to take the survey. YouGov also have the resource to link participants to TargetSmart’s voter file, so they can ensure they are verified registered voters. They include precinct-level vote data of voters to make their sample more representative by improving the geographic representation of underrepresented areas (@br24). Other information used to invite survey participants who match the characteristics of the population of interest includes government data and other information collected from respondents when they join our panel like age, gender, race, education, etc (@m).
+
+Most of the participants in their presidential election survey have decided to vote while a small proportion are undecided. Thus, the answer they get is only what people plan to do instead of committed actions. So, the survey result and built model are best to reflect the current stage of the race, not perfect for prediction in the future. People can even change their decision to vote or not over time, which adds more changes over time (@br24). This will affect YouGov’s model based on their methodology, and YouGov is reflecting these changes with an updated model corresponding.
+
+## Survey and After-Survey Process
+
+YouGov's surveys are all online, with any device and at any time the respondent prefers. Questions asked include who they will likely vote for, as well as their likelihood to vote in the actual election and other questions. The same almost sample is being used in each survey. In this way, participants are tracked over time, so YouGov can study their shifts as the campaign progresses. For example, they have discovered stability in voters’ candidate preferences for 2024 (@br24). YouGov ensures the reliability and validity of its surveys through high standards and transparent reporting. Participants’ privacy is protected by giving them control over the usage of their data such as allowing requests for data corrections and opting out of cookies. They aggregate responses in reporting to protect participants’ identities. Something good about their questionnaire is that participants will have the choice of “prefer not to say” and skipping the question (@m). 
+
+Another noticeable good point of their questionnaire is that it includes a broad range of topics including political, economic, environmental, and education issues, at the same time capturing people's potential engagement with voting by questions such as their likelihood of voting and method of voting. For the presidential election, YouGov has an unusually large sample compared to other opinion polling, with nearly 100,000 interviews in total contributing to their estimate model. They don’t only continue with this model; after September, they will update with re-interviewed responses from over 20,000 people (@br24). They build long-term relationships with their panellists. 
+
+For the presidential election, YouGov’s U.S. panellists have been surveyed regularly since December 2023, and these panellists do not only get interviewed once but instated, and engaged in monthly or quarterly re-interviews (@br24). But besides their effort to gather a large sample and actively include underrepresented regions by selective sampling, there are still areas that are hard to reach and lacking data groups that only have a small sample, such as people in small states and younger voters in larger states. Thus, after completing surveys, YouGov employs a weighting process to adjust respondents' influence based on their demographic characteristics and presidential vote (@br24). In helps to develop the inclusiveness of the data gathered,
+
+## Quality of Data Gathered
+
+To ensure accuracy, YouGov applies a strategy of monitoring, testing, and refinement. They have a team with techniques to catch unreliable respondents. They also apply consistency checks to people’s responses to avoid fraudulent responses. People who do not meet response quality standards will be removed from the final sample (@m). For example, in their poll from October 12-15, 1,869 started the survey initially. 145 were deleted due to break-offs, 100 more were removed for data quality purposes, reasons including short interview completion time, and failed attention check, failed consistent checks etc. So the reporting is based on the remaining 1,624 respondents.
+
+## Weakness
+
+Their surveys are completely online, and therefore limited to individuals with internet access. Also, there could be additional factors that could influence the results beyond the reported margin of error. These include how they are phrasing questions and respondent bias, all of which can introduce potential errors in the survey outcomes.
+
+# Additional data details
+
+# Model details {#sec-model-details}
+
+## Posterior predictive check
+
+In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
+
+In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows...
+
+```{r}
+#| eval: false
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-ppcheckandposteriorvsprior
+#| layout-ncol: 2
+#| fig-cap: "Examining how the model fits, and is affected by, the data"
+#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
+
+pp_check(first_model) +
+  theme_classic() +
+  theme(legend.position = "bottom")
+
+posterior_vs_prior(first_model) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.position = "bottom") +
+  coord_flip()
+```
+
+## Diagnostics
+
+@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
+
+@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
+
+```{r}
+#| echo: false
+#| eval: false
+#| message: false
+#| warning: false
+#| label: fig-stanareyouokay
+#| fig-cap: "Checking the convergence of the MCMC algorithm"
+#| fig-subcap: ["Trace plot", "Rhat plot"]
+#| layout-ncol: 2
+
+plot(first_model, "trace")
+
+plot(first_model, "rhat")
+```
+
+\newpage
+
+# References
