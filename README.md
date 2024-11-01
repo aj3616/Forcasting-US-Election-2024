@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project uses r scripts and data from https://projects.fivethirtyeight.com/polls/president-general/2024/national/ to build a linear or generalized linear model to forecast the winner of the upcoming US presidential election. We use the “poll-of-polls” approach (Blumenthal 2014; Pasek 2015) to aggregate polling data and implement the model in an entirely reproducible manner. This project adheres to the principles of open science and transparency, ensuring that every step of the analysis is accessible and repeatable. The result will be generated in the form of pdf produced by quarto. The structure of the project was based on <https://github.com/RohanAlexander/starter_folder>. All simulations and sample used a seed: TODO.
+This project uses r scripts and data from https://projects.fivethirtyeight.com/polls/president-general/2024/national/ to build a linear or generalized linear model to forecast the winner of the upcoming US presidential election. We use the “poll-of-polls” approach (Blumenthal 2014; Pasek 2015) to aggregate polling data and implement the model in an entirely reproducible manner. This project adheres to the principles of open science and transparency, ensuring that every step of the analysis is accessible and repeatable. The result will be generated in the form of pdf produced by quarto. The structure of the project was based on <https://github.com/RohanAlexander/starter_folder>. All simulations and sample used a seed: TODO. add the result
 
 ## File Structure
 
