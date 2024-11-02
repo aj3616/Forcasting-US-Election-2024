@@ -1,7 +1,7 @@
 #### Preamble ####
 # Purpose: Create, compare, and select the best model to predict the 2024 US election result using different modeling approaches
 # Author: Amy Jin
-# Date: [Update with today's date]
+# Date: 2024.11.02
 # Contact: amyzh.jin@mail.utoronto.ca
 # License: MIT
 # Pre-requisites:
