@@ -1,152 +1,51 @@
-division,state,party
-Division 1,Victoria,Liberal
-Division 2,New South Wales,Liberal
-Division 3,Tasmania,Liberal
-Division 4,New South Wales,Liberal
-Division 5,Queensland,Liberal
-Division 6,New South Wales,Labor
-Division 7,Victoria,Liberal
-Division 8,Western Australia,Labor
-Division 9,Western Australia,Greens
-Division 10,Queensland,Labor
-Division 11,Queensland,Labor
-Division 12,Northern Territory,Liberal
-Division 13,New South Wales,Labor
-Division 14,Western Australia,Labor
-Division 15,Western Australia,National
-Division 16,Victoria,Liberal
-Division 17,South Australia,Liberal
-Division 18,Victoria,Liberal
-Division 19,Western Australia,Labor
-Division 20,South Australia,Labor
-Division 21,New South Wales,Liberal
-Division 22,Queensland,Greens
-Division 23,New South Wales,Liberal
-Division 24,New South Wales,Liberal
-Division 25,Queensland,Labor
-Division 26,Victoria,National
-Division 27,New South Wales,Liberal
-Division 28,Queensland,Liberal
-Division 29,Tasmania,Liberal
-Division 30,South Australia,Liberal
-Division 31,New South Wales,Liberal
-Division 32,Victoria,Labor
-Division 33,Tasmania,Liberal
-Division 34,New South Wales,Liberal
-Division 35,Western Australia,Labor
-Division 36,New South Wales,Liberal
-Division 37,Tasmania,Greens
-Division 38,Tasmania,Labor
-Division 39,Victoria,Greens
-Division 40,South Australia,Labor
-Division 41,New South Wales,Other
-Division 42,New South Wales,Other
-Division 43,Tasmania,Labor
-Division 44,Tasmania,National
-Division 45,Queensland,Liberal
-Division 46,Australian Capital Territory,Other
-Division 47,Queensland,Labor
-Division 48,Queensland,Other
-Division 49,South Australia,Liberal
-Division 50,Victoria,National
-Division 51,South Australia,Liberal
-Division 52,Victoria,Labor
-Division 53,South Australia,National
-Division 54,Queensland,Liberal
-Division 55,Queensland,Labor
-Division 56,South Australia,Liberal
-Division 57,New South Wales,Other
-Division 58,Northern Territory,Liberal
-Division 59,New South Wales,Labor
-Division 60,Western Australia,Labor
-Division 61,New South Wales,Liberal
-Division 62,South Australia,Liberal
-Division 63,Queensland,Labor
-Division 64,Tasmania,Labor
-Division 65,South Australia,Labor
-Division 66,Victoria,Labor
-Division 67,Queensland,Liberal
-Division 68,Queensland,Liberal
-Division 69,Tasmania,Labor
-Division 70,South Australia,National
-Division 71,Australian Capital Territory,Labor
-Division 72,Western Australia,Labor
-Division 73,Queensland,National
-Division 74,Victoria,Labor
-Division 75,Western Australia,Labor
-Division 76,Tasmania,Labor
-Division 77,Queensland,Liberal
-Division 78,Western Australia,Liberal
-Division 79,Queensland,Labor
-Division 80,Queensland,Liberal
-Division 81,Victoria,Labor
-Division 82,New South Wales,Liberal
-Division 83,Victoria,Liberal
-Division 84,Queensland,National
-Division 85,Western Australia,Liberal
-Division 86,New South Wales,Labor
-Division 87,Queensland,Liberal
-Division 88,New South Wales,Liberal
-Division 89,Tasmania,Liberal
-Division 90,South Australia,Labor
-Division 91,Victoria,Liberal
-Division 92,New South Wales,Labor
-Division 93,Tasmania,Labor
-Division 94,South Australia,Labor
-Division 95,Victoria,Liberal
-Division 96,Victoria,Labor
-Division 97,Western Australia,Liberal
-Division 98,Queensland,Liberal
-Division 99,South Australia,Liberal
-Division 100,New South Wales,Labor
-Division 101,South Australia,Labor
-Division 102,New South Wales,Labor
-Division 103,Victoria,Labor
-Division 104,Victoria,Labor
-Division 105,South Australia,Other
-Division 106,Western Australia,Labor
-Division 107,Tasmania,Liberal
-Division 108,Victoria,Labor
-Division 109,Queensland,Liberal
-Division 110,Victoria,Labor
-Division 111,Australian Capital Territory,Labor
-Division 112,Victoria,Liberal
-Division 113,Victoria,Liberal
-Division 114,Victoria,Liberal
-Division 115,Tasmania,Labor
-Division 116,Victoria,Labor
-Division 117,New South Wales,Labor
-Division 118,Victoria,Labor
-Division 119,Victoria,Greens
-Division 120,Northern Territory,Labor
-Division 121,South Australia,Liberal
-Division 122,New South Wales,Liberal
-Division 123,New South Wales,Labor
-Division 124,New South Wales,Liberal
-Division 125,New South Wales,National
-Division 126,New South Wales,Labor
-Division 127,Queensland,Labor
-Division 128,New South Wales,Other
-Division 129,Queensland,Labor
-Division 130,Australian Capital Territory,Liberal
-Division 131,Tasmania,Greens
-Division 132,New South Wales,National
-Division 133,New South Wales,Labor
-Division 134,Northern Territory,Labor
-Division 135,South Australia,National
-Division 136,Victoria,Labor
-Division 137,Tasmania,National
-Division 138,South Australia,Liberal
-Division 139,New South Wales,Labor
-Division 140,Victoria,Other
-Division 141,Queensland,Greens
-Division 142,Victoria,National
-Division 143,Western Australia,Labor
-Division 144,Victoria,Labor
-Division 145,Queensland,Liberal
-Division 146,Tasmania,Liberal
-Division 147,South Australia,Liberal
-Division 148,Victoria,Labor
-Division 149,New South Wales,National
-Division 150,New South Wales,Labor
-Division 151,Victoria,Liberal
+pollster_id,pollster,sponsors,transparency_score,state,start_date,end_date,sponsor_candidate_party,endorsed_candidate_name,endorsed_candidate_party,sample_size,population,race_id,cycle,election_date,candidate_id
+62,Pollster C,Sponsor 1,0.5,CA,2024-09-07,2024-06-16,Republican,Candidate B,Republican,1957,Likely Voters,10,2024,2024-11-05,179
+49,Pollster A,Sponsor 2,2.5,CA,2024-01-29,2024-02-20,Republican,Candidate B,Democratic,619,Likely Voters,1,2024,2024-11-05,180
+18,Pollster B,Sponsor 2,9.5,TX,2024-03-27,2024-04-24,Republican,Candidate B,Democratic,1614,Likely Voters,10,2024,2024-11-05,112
+65,Pollster C,Sponsor 1,7.5,PA,2024-05-06,2024-07-29,Republican,Candidate B,Democratic,1491,Likely Voters,6,2024,2024-11-05,164
+87,Pollster C,Sponsor 1,7,PA,2024-07-17,2024-01-25,Republican,Candidate A,Republican,1200,Likely Voters,3,2024,2024-11-05,113
+80,Pollster B,Sponsor 2,0,FL,2024-02-23,2024-01-14,Democratic,Candidate B,Democratic,1250,Adults,8,2024,2024-11-05,180
+72,Pollster A,Sponsor 3,6.5,PA,2024-07-03,2024-06-12,Republican,Candidate B,Democratic,1428,Adults,10,2024,2024-11-05,121
+40,Pollster C,Sponsor 2,6.5,TX,2024-02-29,2024-02-19,Republican,Candidate A,Republican,1063,Likely Voters,6,2024,2024-11-05,191
+10,Pollster A,Sponsor 1,8.5,NY,2024-05-22,2024-04-25,Republican,Candidate A,Democratic,678,Likely Voters,2,2024,2024-11-05,188
+88,Pollster B,Sponsor 2,6.5,PA,2024-03-01,2024-09-08,Republican,Candidate B,Republican,1739,Likely Voters,4,2024,2024-11-05,110
+86,Pollster B,Sponsor 3,NA,FL,2024-02-12,2024-01-05,Republican,Candidate A,Republican,896,Adults,9,2024,2024-11-05,110
+7,Pollster A,Sponsor 3,4,TX,2024-02-15,2024-03-31,Republican,Candidate B,Republican,1604,Adults,6,2024,2024-11-05,135
+83,Pollster C,Sponsor 2,1.5,FL,2024-07-30,2024-07-16,Democratic,Candidate B,Republican,1922,Likely Voters,4,2024,2024-11-05,178
+56,Pollster C,Sponsor 1,4.5,NY,2024-01-14,2024-04-22,Democratic,Candidate A,Democratic,606,Adults,6,2024,2024-11-05,180
+95,Pollster B,Sponsor 2,1.5,FL,2024-03-11,2024-08-26,Republican,Candidate B,Democratic,1747,Adults,2,2024,2024-11-05,105
+93,Pollster C,Sponsor 1,NA,PA,2024-01-31,2024-01-29,Democratic,Candidate B,Democratic,1580,Likely Voters,5,2024,2024-11-05,163
+39,Pollster C,Sponsor 1,0,CA,2024-05-08,2024-06-18,Republican,Candidate B,Democratic,1086,Adults,3,2024,2024-11-05,200
+62,Pollster A,Sponsor 3,NA,CA,2024-03-22,2024-06-05,Republican,Candidate B,Democratic,1689,Adults,4,2024,2024-11-05,183
+33,Pollster B,Sponsor 1,0,NY,2024-05-28,2024-10-01,Republican,Candidate B,Democratic,833,Likely Voters,6,2024,2024-11-05,125
+36,Pollster B,Sponsor 1,4.5,FL,2024-04-07,2024-04-23,Democratic,Candidate A,Democratic,1851,Adults,1,2024,2024-11-05,153
+36,Pollster C,Sponsor 2,3,PA,2024-03-15,2024-04-25,Republican,Candidate A,Republican,1209,Adults,4,2024,2024-11-05,113
+46,Pollster C,Sponsor 3,5.5,PA,2024-09-13,2024-07-22,Republican,Candidate B,Democratic,989,Likely Voters,4,2024,2024-11-05,182
+24,Pollster B,Sponsor 1,4.5,PA,2024-09-26,2024-03-01,Democratic,Candidate A,Republican,808,Adults,8,2024,2024-11-05,140
+62,Pollster A,Sponsor 3,2,FL,2024-07-31,2024-04-10,Democratic,Candidate A,Democratic,995,Adults,4,2024,2024-11-05,190
+59,Pollster B,Sponsor 1,9.5,NY,2024-01-19,2024-06-06,Republican,Candidate A,Republican,518,Likely Voters,6,2024,2024-11-05,167
+82,Pollster C,Sponsor 2,1,PA,2024-02-18,2024-04-07,Democratic,Candidate A,Republican,503,Likely Voters,7,2024,2024-11-05,161
+2,Pollster C,Sponsor 1,5.5,NY,2024-05-12,2024-07-26,Republican,Candidate B,Republican,1862,Adults,4,2024,2024-11-05,191
+29,Pollster B,Sponsor 3,1,TX,2024-04-29,2024-10-02,Republican,Candidate B,Republican,1786,Likely Voters,7,2024,2024-11-05,123
+15,Pollster A,Sponsor 3,2,NY,2024-04-02,2024-01-08,Republican,Candidate A,Republican,1684,Adults,5,2024,2024-11-05,199
+54,Pollster B,Sponsor 3,4.5,CA,2024-01-01,2024-02-26,Democratic,Candidate B,Democratic,1449,Likely Voters,10,2024,2024-11-05,158
+17,Pollster C,Sponsor 2,0.5,FL,2024-06-24,2024-08-11,Democratic,Candidate B,Republican,625,Adults,8,2024,2024-11-05,122
+51,Pollster B,Sponsor 3,2,CA,2024-06-30,2024-09-02,Democratic,Candidate B,Republican,1477,Likely Voters,1,2024,2024-11-05,173
+53,Pollster C,Sponsor 3,NA,FL,2024-01-20,2024-05-19,Democratic,Candidate A,Republican,707,Adults,5,2024,2024-11-05,161
+61,Pollster B,Sponsor 3,0.5,CA,2024-01-14,2024-09-19,Democratic,Candidate A,Democratic,1642,Likely Voters,2,2024,2024-11-05,193
+77,Pollster A,Sponsor 1,7.5,PA,2024-08-20,2024-01-24,Democratic,Candidate B,Republican,1702,Adults,10,2024,2024-11-05,187
+23,Pollster B,Sponsor 3,9.5,CA,2024-09-15,2024-09-30,Republican,Candidate A,Democratic,1795,Likely Voters,2,2024,2024-11-05,101
+54,Pollster B,Sponsor 3,4.5,TX,2024-05-04,2024-02-17,Republican,Candidate A,Democratic,1747,Likely Voters,5,2024,2024-11-05,152
+26,Pollster C,Sponsor 3,5.5,CA,2024-07-10,2024-07-25,Democratic,Candidate B,Republican,819,Likely Voters,1,2024,2024-11-05,128
+13,Pollster A,Sponsor 2,10,PA,2024-01-01,2024-01-06,Democratic,Candidate B,Republican,666,Adults,5,2024,2024-11-05,196
+39,Pollster C,Sponsor 1,2.5,CA,2024-08-26,2024-07-29,Democratic,Candidate A,Republican,1477,Adults,4,2024,2024-11-05,109
+55,Pollster B,Sponsor 1,5,TX,2024-05-19,2024-04-07,Democratic,Candidate B,Democratic,1585,Likely Voters,5,2024,2024-11-05,182
+15,Pollster B,Sponsor 2,7.5,NY,2024-06-06,2024-03-15,Democratic,Candidate A,Republican,805,Adults,6,2024,2024-11-05,108
+80,Pollster C,Sponsor 1,4.5,TX,2024-06-01,2024-01-05,Democratic,Candidate B,Democratic,851,Likely Voters,10,2024,2024-11-05,118
+60,Pollster B,Sponsor 3,2,CA,2024-08-23,2024-03-02,Republican,Candidate A,Republican,811,Likely Voters,1,2024,2024-11-05,100
+30,Pollster A,Sponsor 2,10,NY,2024-09-15,2024-04-11,Republican,Candidate B,Republican,1254,Likely Voters,5,2024,2024-11-05,140
+57,Pollster B,Sponsor 2,1,FL,2024-04-16,2024-09-01,Republican,Candidate B,Democratic,1923,Likely Voters,7,2024,2024-11-05,193
+85,Pollster B,Sponsor 2,9.5,TX,2024-04-05,2024-08-22,Republican,Candidate A,Republican,598,Adults,7,2024,2024-11-05,130
+25,Pollster B,Sponsor 1,6.5,TX,2024-05-10,2024-04-03,Republican,Candidate A,Democratic,1754,Likely Voters,10,2024,2024-11-05,106
+30,Pollster A,Sponsor 2,4.5,NY,2024-09-30,2024-05-18,Democratic,Candidate A,Republican,1518,Likely Voters,9,2024,2024-11-05,160
+64,Pollster C,Sponsor 3,10,TX,2024-02-03,2024-02-07,Republican,Candidate B,Republican,1456,Likely Voters,6,2024,2024-11-05,150
