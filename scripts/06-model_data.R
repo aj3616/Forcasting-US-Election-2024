@@ -1,11 +1,15 @@
 #### Preamble ####
-# Purpose: Create, compare, and select the best model to predict the 2024 US election result
-# Author: [Your Name]
+# Purpose: Create, compare, and select the best model to predict the 2024 US election result using different modeling approaches
+# Author: Amy Jin
 # Date: [Update with today's date]
-# Contact: [Your Email]
+# Contact: amyzh.jin@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: Ensure all necessary data and libraries are available
-# Any other information needed? [Update with additional context]
+# Pre-requisites:
+# - Ensure the `tidyverse`, `rstanarm`, `broom`, and `ggplot2` packages are installed and loaded
+# - Ensure the data files "analysis_data.parquet" and "harris_data.parquet" are located in the "data/02-analysis_data" directory
+# - Make sure you are in the correct project directory before running the script
+# Any other information needed? The script uses Bayesian modeling and compares models using AIC/BIC metrics
+
 
 #### Workspace setup ####
 library(tidyverse)
