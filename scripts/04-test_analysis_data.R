@@ -1,11 +1,14 @@
 #### Preamble ####
-# Purpose: Tests simulation and analysis data
+# Purpose: Validate the structure and content of the simulated polling dataset
 # Author: Amy Jin
 # Date: 18 October 2024
-# Contact: amyzh.jin@mail.utoronto,ca
+# Contact: amyzh.jin@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites:
+# - The `tidyverse`, `testthat`, `arrow`, and `here` packages must be installed and loaded
+# - The dataset file "analysis_data.parquet" should be located in the "data/02-analysis_data" directory
+# Any other information needed? Make sure you are in the correct project directory before running the script
+
 
 
 #### Workspace setup ####
