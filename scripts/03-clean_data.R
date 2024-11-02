@@ -195,36 +195,7 @@ filtered_data <- filtered_data %>%
   group_by(pollster) %>%
   filter(n() >= 5) %>%
   ungroup()
-#### Plot data ####
-base_plot <- ggplot(just_harris_high_quality, aes(x = end_date, y = pct)) +
-  theme_classic() +
-  labs(y = "Trump percent", x = "Date")
 
-# Plots poll estimates and overall smoothing
-base_plot +
-  geom_point() +
-  geom_smooth()
-
-# Color by pollster
-# This gets messy - need to add a filter - see line 21
-base_plot +
-  geom_point(aes(color = pollster)) +
-  geom_smooth() +
-  theme(legend.position = "bottom")
-
-# Facet by pollster
-# Make the line 21 issue obvious
-# Also - is there duplication???? Need to go back and check
-base_plot +
-  geom_point() +
-  geom_smooth() +
-  facet_wrap(vars(pollster))
-
-# Color by pollscore
-base_plot +
-  geom_point(aes(color = factor(pollscore))) +
-  geom_smooth() +
-  theme(legend.position = "bottom")
 
 #### Save cleaned data ####
 

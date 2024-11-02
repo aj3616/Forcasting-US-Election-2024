@@ -13,22 +13,24 @@ library(tidyverse)
 library(dplyr)
 library(lubridate)
 
-# Simulate a sample dataset
-set.seed(123)  # For reproducibility
+library(tibble)
+
+# Set the seed for reproducibility
+set.seed(106)
+
+# Simulate polling data
 polling_data <- tibble(
   poll_id = 1:10,
   pollster = c("YouGov", "Ipsos", "SurveyUSA", "Morning Consult", "Quinnipiac", 
                "Emerson College", "Marist College", "Rasmussen Reports", 
                "Fox News", "CNN"),
-  sample_size = c(1500, 1200, 800, 1300, 1400, 1100, 1000, 1600, 900, 1250),
-  population = c("Likely Voters", "Registered Voters", "Likely Voters", 
-                 "Likely Voters", "Registered Voters", "Likely Voters", 
-                 "Registered Voters", "Likely Voters", "Likely Voters", 
-                 "Registered Voters"),
+  sample_size = sample(800:1600, 10, replace = TRUE),
+  population = sample(c("Likely Voters", "Registered Voters"), 10, replace = TRUE),
   candidate_name = rep(c("Kamala Harris", "Donald Trump"), 5),
-  pct = c(46, 44, 47, 43, 49, 45, 48, 42, 47, 46)
+  pct = sample(40:60, 10, replace = TRUE)
 )
 
+# Simulate sample data
 sample_data <- tibble(
   pollster_id = sample(1:100, 50, replace = TRUE),
   pollster = sample(c("Pollster A", "Pollster B", "Pollster C"), 50, replace = TRUE),
@@ -48,46 +50,7 @@ sample_data <- tibble(
   candidate_id = sample(100:200, 50, replace = TRUE)
 )
 
-# View the simulated data
-head(sample_data)
-
-
-set.seed(853)
-
-
-#### Simulate data ####
-# State names
-states <- c(
-  "New South Wales",
-  "Victoria",
-  "Queensland",
-  "South Australia",
-  "Western Australia",
-  "Tasmania",
-  "Northern Territory",
-  "Australian Capital Territory"
-)
-
-# Political parties
-parties <- c("Labor", "Liberal", "Greens", "National", "Other")
-
-# Create a dataset by randomly assigning states and parties to divisions
-analysis_data <- tibble(
-  division = paste("Division", 1:151),  # Add "Division" to make it a character
-  state = sample(
-    states,
-    size = 151,
-    replace = TRUE,
-    prob = c(0.25, 0.25, 0.15, 0.1, 0.1, 0.1, 0.025, 0.025) # Rough state population distribution
-  ),
-  party = sample(
-    parties,
-    size = 151,
-    replace = TRUE,
-    prob = c(0.40, 0.40, 0.05, 0.1, 0.05) # Rough party distribution
-  )
-)
 
 
 #### Save data ####
-write_csv(analysis_data, "data/00-simulated_data/simulated_data.csv")
+write_csv(sample_data, "data/00-simulated_data/simulated_data.csv")
