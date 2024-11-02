@@ -421,7 +421,7 @@ pollster, to account for systematic differences between polling organizations.
 
 is_national, to Model 2 to differentiate between national and state-specific polls.
 
-**Model 4**: A Bayesian model implemented using the `rstanarm` package, incorporating the same predictors as Model 3 but allowing for more robust estimation under uncertainty.
+**Model 4**: A Bayesian model implemented using the `rstanarm` package, incorporating the same predictors as Model 2 but allowing for more robust estimation under uncertainty.
 
 ### We mathematically define these models as follows:
 
@@ -512,7 +512,7 @@ The results and details are in @sec-model-details.
 
 -   **Strengths**: The models are interpretable and straightforward, with the Bayesian approach providing a robust framework for uncertainty quantification.
 -   **Weaknesses**: Potential oversimplification and assumptions of linearity. Future iterations could explore non-linear effects or hierarchical models.
--   **Final Choice**: We selected **Model 3** (linear model with `end_date`, `pollster`, and `is_national`) for its balance of interpretability and predictive performance. The Bayesian model serves as a robustness check, with results presented in the appendix.
+-   **Final Choice**: We selected **Model 2** (linear model with `end_date` and `pollster`) for its balance of interpretability and predictive performance. The Bayesian model serves as a robustness check, with results presented in the appendix.
 
 Our final model selection and analysis provide a reliable and transparent prediction framework for Kamala Harris’s support in the 2024 US election.
 
@@ -783,7 +783,7 @@ model_comparison %>%
 ```
 
 
-**Results**: Model 3 has the lowest AIC and BIC, suggesting it offers the best balance between goodness-of-fit and complexity. This model includes both time trends and categorical effects for pollsters and national versus state-specific polls.
+**Results**: Model 2 has the lowest AIC and BIC, suggesting it offers the best balance between goodness-of-fit and complexity. This model includes both time trends and categorical effects for pollsters and national versus state-specific polls.
 
 
 #### 2. Cross-Validation for Out-of-Sample Performance
@@ -860,7 +860,7 @@ ggplot(augment(model_date_pollster_national), aes(x = .fitted, y = .resid)) +
 - **Model 3 (Time Trend + Pollster + National/State)**: The residuals show no obvious patterns, suggesting that the model assumptions are reasonably met.
 
 
-**Interpretation**: Model 3's residuals suggest that the model adequately captures the data's underlying structure, with no major violations of the linear model assumptions.
+**Interpretation**: Model 2's residuals suggest that the model adequately captures the data's underlying structure, with no major violations of the linear model assumptions.
 
 
 
