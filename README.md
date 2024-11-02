@@ -2,7 +2,8 @@
 
 ## Overview
 
-This project uses r scripts and data from https://projects.fivethirtyeight.com/polls/president-general/2024/national/ to build a linear or generalized linear model to forecast the winner of the upcoming US presidential election. We use the “poll-of-polls” approach (Blumenthal 2014; Pasek 2015) to aggregate polling data and implement the model in an entirely reproducible manner. This project adheres to the principles of open science and transparency, ensuring that every step of the analysis is accessible and repeatable. The result will be generated in the form of pdf produced by quarto. The structure of the project was based on <https://github.com/RohanAlexander/starter_folder>. All simulations and sample used a seed: TODO. add the result
+This project uses r scripts and data from https://projects.fivethirtyeight.com/polls/president-general/2024/national/ to build a linear or generalized linear model to forecast the winner of the upcoming US presidential election. We use the “poll-of-polls” approach (Blumenthal 2014; Pasek 2015) to aggregate polling data and implement the model in an entirely reproducible manner. This project adheres to the principles of open science and transparency, ensuring that every step of the analysis is accessible and repeatable. The result will be generated in the form of pdf produced by quarto. The structure of the project was based on <https://github.com/RohanAlexander/starter_folder>. All simulations and sample used a seed: 106.
+The result of our forecasting model is that Kamala Harris will win with a 48.1% support and trump will have 46.1% support.
 
 ## File Structure
 
@@ -32,9 +33,7 @@ Poll Aggregation
 We use the “poll-of-polls” approach to combine results from various polls, smoothing out biases and reducing variance. We selected a single pollster for deep analysis, examining their methodology to assess strengths and weaknesses.
 
 Model Building
-We built a linear (or generalized linear) regression model to predict the election outcome based on aggregated polling data. The model takes into account several predictors, including:
-
-TODO:
+We built a linear (or generalized linear) regression model to predict the election outcome based on aggregated polling data. The final model we selected takes end_date and pollster variable for prediction.
 
 
 Reproducibility:
@@ -44,7 +43,7 @@ Results:
 
 The detailed analysis and results of the model are available in the paper/ directory. The paper provides insights into the model's performance, evaluation metrics, and potential biases or limitations.
 
-Appendices TODO:
+Appendices:
 
 Appendix 1: Pollster Methodology Deep Dive
 A deep dive into the methodology of the chosen pollster, covering:
