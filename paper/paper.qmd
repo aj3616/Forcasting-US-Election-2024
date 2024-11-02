@@ -24,7 +24,13 @@ library(tidyverse)
 library(gt)
 library(ggplot2)
 library(tidyr)
+# Load the arrow package
+library(arrow)
+library(here)
 data = read_csv(here::here("data/02-analysis_data/analysis_data.csv"))
+# Read the Parquet file
+analysis_data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet"))
+
 ```
 
 # Introduction
@@ -39,7 +45,7 @@ The remainder of this paper is structured as follows. @sec-data....
 
 ## Overview {#sec-dataoverview}
 
-We use the polling data to forecast the potential outcomes of the 2024 U.S. presidential election between Kamala Harris and Donald Trump.The dataset was obtained from https://projects.fivethirtyeight.com/polls/president-general/2024/national/ or (FiveThirtyEight’s “Poll of Polls” for the 2024 U.S. Presidential election [@fivethirtyeight]). It provides a comprehensive view of voter preferences through aggregated results from numerous national polls conducted by various polling organizations. The dataset was simulated, cleaned, analyzed, and tested using the R programming language [@talia], tidyverse [@citetidyverse], knitr [@citeknitr], ggplot2 [@citeggplot2], gt[@gt].
+We use the polling data to forecast the potential outcomes of the 2024 U.S. presidential election between Kamala Harris and Donald Trump.The dataset was obtained from https://projects.fivethirtyeight.com/polls/president-general/2024/national/ or (FiveThirtyEight’s “Poll of Polls” for the 2024 U.S. Presidential election [@fivethirtyeight2024]). It provides a comprehensive view of voter preferences through aggregated results from numerous national polls conducted by various polling organizations. The dataset was simulated, cleaned, analyzed, and tested using the R programming language [@talia], tidyverse [@citetidyverse], knitr [@citeknitr], ggplot2 [@citeggplot2], gt[@gt].
 
 ## Variables
 
@@ -500,6 +506,8 @@ The models were implemented in R using the `tidyverse` and `rstanarm` packages. 
 
 **Model Convergence**: Monitored using diagnostics provided by `rstanarm` for the Bayesian model.
 
+The results and details are in @sec-model-details.
+
 #### Strengths, Weaknesses, and Final Model Choice
 
 -   **Strengths**: The models are interpretable and straightforward, with the Bayesian approach providing a robust framework for uncertainty quantification.
@@ -714,53 +722,179 @@ Include a link to your Google Forms survey here. Survey Link Copy of the Survey 
 
 # Model details {#sec-model-details}
 
-## Posterior predictive check
+## Model Validation and Evaluation
 
-In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
+Our goal in developing predictive models for the 2024 US presidential election is to ensure that our models are not only accurate but also robust and generalizable. To achieve this, we implement a comprehensive model validation process. This section describes our approach to model validation, including criteria used to compare models, diagnostic techniques employed to evaluate model assumptions, and specific methods to ensure the reliability of our Bayesian model.
 
-In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows...
+We validate our models using several strategies: Akaike Information Criterion (AIC) and Bayesian Information Criterion (BIC) for model selection, cross-validation to evaluate out-of-sample performance, and diagnostic plots to assess model assumptions. Additionally, we perform posterior predictive checks and convergence diagnostics for the Bayesian model.
+
+#### Software and Implementation
+The models were implemented in R using the `tidyverse` and `rstanarm` packages. The validation process was executed using tools from these packages and additional packages, such as `broom` and `loo`, for model diagnostics.
+
+### Model Validation Process
+
+#### 1. AIC and BIC for Model Selection
+To compare the linear models' goodness-of-fit while penalizing complexity, we use AIC and BIC. These metrics help identify the most appropriate model for the data, balancing explanatory power and parsimony. The results are presented in (@tbl-AIC):
+
+```{r, echo=FALSE, include=FALSE, warning=FALSE}
+library(tidyverse)
+library(broom)
+library(rstanarm)
+library(ggplot2)
+library(loo)
+
+# Define the models
+model_date <- lm(pct ~ end_date, data = analysis_data)
+model_date_pollster <- lm(pct ~ end_date + pollster, data = analysis_data)
+model_date_pollster_national <- lm(pct ~ end_date + pollster + is_national, data = analysis_data)
+model_bayesian <- stan_glm(
+  pct ~ end_date + pollster + is_national,
+  data = analysis_data,
+  family = gaussian,
+  prior = normal(0, 5),
+  chains = 4, iter = 2000
+)
+```
+
+
 
 ```{r}
-#| eval: false
+#| label: tbl-AIC
+#| tbl-cap: "Model Comparison Table: AIC and BIC Values for Model Selection"
 #| echo: false
-#| message: false
-#| warning: false
-#| label: fig-ppcheckandposteriorvsprior
-#| layout-ncol: 2
-#| fig-cap: "Examining how the model fits, and is affected by, the data"
-#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
+# Load required librarie
 
-pp_check(first_model) +
-  theme_classic() +
-  theme(legend.position = "bottom")
 
-posterior_vs_prior(first_model) +
+# Create the model comparison table using gt
+model_comparison <- tibble(
+  Model = c("model_date", "model_date_pollster", "model_date_pollster_national"),
+  AIC = c(AIC(model_date), AIC(model_date_pollster), AIC(model_date_pollster_national)),
+  BIC = c(BIC(model_date), BIC(model_date_pollster), BIC(model_date_pollster_national))
+)
+
+# Print the model comparison table using gt
+model_comparison %>%
+  gt() %>%
+  fmt_number(
+    columns = c(AIC, BIC),
+    decimals = 2
+  )
+
+```
+
+
+**Results**: Model 3 has the lowest AIC and BIC, suggesting it offers the best balance between goodness-of-fit and complexity. This model includes both time trends and categorical effects for pollsters and national versus state-specific polls.
+
+
+#### 2. Cross-Validation for Out-of-Sample Performance
+We use leave-one-out cross-validation (LOO) for the Bayesian model to assess predictive performance. The `loo` package computes the expected log predictive density (ELPD), which indicates how well the model generalizes to new data. Table (@tbl-CV) shows the result.
+
+```{r}
+#| label: tbl-CV
+#| tbl-cap: "LOO Summary for Bayesian Model LOOCV Result"
+#| echo: false
+
+# Load necessary libraries
+library(gt)
+library(loo)
+
+# Run LOO on the Bayesian model
+loo_result <- loo(model_bayesian)
+
+# Extract summary statistics from loo_result
+loo_summary <- tibble(
+  Metric = c("LOOIC", "SE(LOOIC)", "p_loo", "elpd_loo", "SE(elpd_loo)"),
+  Value = c(
+    loo_result$estimates["looic", "Estimate"],
+    loo_result$estimates["looic", "SE"],
+    loo_result$estimates["p_loo", "Estimate"],
+    loo_result$estimates["elpd_loo", "Estimate"],
+    loo_result$estimates["elpd_loo", "SE"]
+  )
+)
+
+# Create a gt table for the LOO summary
+loo_summary %>%
+  gt() %>%
+  fmt_number(
+    columns = "Value",
+    decimals = 2
+  )
+
+
+```
+
+
+**Cross-Validation Results**:
+The LOO estimate for the Bayesian model shows that the model has good predictive performance, supporting its use for forecasting election outcomes.
+
+
+#### 3. Residual Diagnostics for Linear Models
+We generate residual plots to check for violations of assumptions such as homoscedasticity (constant variance of residuals) and linearity. 
+
+```{r, echo=FALSE}
+ggplot(augment(model_date), aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
   theme_minimal() +
-  scale_color_brewer(palette = "Set1") +
+  labs(title = "Residual Plot for Model 1", x = "Fitted Values", y = "Residuals")
+
+# Model 2 Residual Plot
+ggplot(augment(model_date_pollster), aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  theme_minimal() +
+  labs(title = "Residual Plot for Model 2", x = "Fitted Values", y = "Residuals")
+
+# Model 3 Residual Plot
+ggplot(augment(model_date_pollster_national), aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  theme_minimal() +
+  labs(title = "Residual Plot for Model 3", x = "Fitted Values", y = "Residuals")
+```
+
+
+- **Model 1 (Simple Time Trend)**: The residuals show a pattern, suggesting potential model misfit.
+- **Model 2 (Time Trend + Pollster)**: The residuals are more evenly spread, indicating an improved model fit.
+- **Model 3 (Time Trend + Pollster + National/State)**: The residuals show no obvious patterns, suggesting that the model assumptions are reasonably met.
+
+
+**Interpretation**: Model 3's residuals suggest that the model adequately captures the data's underlying structure, with no major violations of the linear model assumptions.
+
+
+
+#### 4. Bayesian Model Diagnostics
+For the Bayesian model, we perform the following diagnostics:
+
+##### a. Posterior Predictive Check
+We use `pp_check()` from `rstanarm` to visualize how well the model's predictions align with the observed data. 
+
+```{r, echo=FALSE}
+pp_check(model_bayesian) +
+  theme_classic() +
   theme(legend.position = "bottom") +
-  coord_flip()
+  labs(title = "Posterior Predictive Check for Bayesian Model")
 ```
 
-## Diagnostics
 
-@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
+**Interpretation**: The predictive distribution closely matches the observed data, indicating a good model fit.
 
-@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
+##### b. Convergence Diagnostics
+We assess MCMC convergence using trace plots and Rhat values:
+- **Trace Plots**: Show that the chains mix well and converge to a common distribution, indicating no issues with convergence.
+- **Rhat Values**: All Rhat values are close to 1, further confirming convergence.
 
-```{r}
-#| echo: false
-#| eval: false
-#| message: false
-#| warning: false
-#| label: fig-stanareyouokay
-#| fig-cap: "Checking the convergence of the MCMC algorithm"
-#| fig-subcap: ["Trace plot", "Rhat plot"]
-#| layout-ncol: 2
+```{r, echo=FALSE}
+plot(model_bayesian, "trace")
+plot(model_bayesian, "rhat")
 
-plot(first_model, "trace")
-
-plot(first_model, "rhat")
 ```
+
+
+**Conclusion**: The Bayesian model's diagnostics confirm that the model converges well, and the posterior samples are reliable.
+
+
 
 \newpage
 
