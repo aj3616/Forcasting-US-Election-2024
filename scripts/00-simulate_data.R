@@ -1,18 +1,21 @@
 #### Preamble ####
-# Purpose: Simulates a dataset of US elections
+# Purpose: Simulates a dataset of US elections with sample polling data
 # Author: Amy Jin
 # Date: 18 October 2024
-# Contact: amyzh.jin@mail.utoronto,ca
+# Contact: amyzh.jin@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: The `tidyverse` package must be installed
-# Any other information needed? Make sure you are in the `Forcasting-US-Elections` rproj
+# Pre-requisites: 
+#   - The `tidyverse` package must be installed and loaded
+#   - Ensure that you are in the `Forcasting-US-Elections` R project directory
+#   - The directory "data/00-simulated_data/" must exist for saving the data file
+# Any other information needed? 
+#   - Run this script to generate and save the simulated dataset
 
 
 #### Workspace setup ####
 library(tidyverse)
 library(dplyr)
 library(lubridate)
-
 library(tibble)
 
 # Set the seed for reproducibility
@@ -49,8 +52,6 @@ sample_data <- tibble(
   election_date = rep(as.Date("2024-11-05"), 50),
   candidate_id = sample(100:200, 50, replace = TRUE)
 )
-
-
 
 #### Save data ####
 write_csv(sample_data, "data/00-simulated_data/simulated_data.csv")
