@@ -24,9 +24,11 @@ library(tidyverse)
 library(gt)
 library(ggplot2)
 library(tidyr)
-# Load the arrow package
 library(arrow)
 library(here)
+library(rstanarm)
+library(broom)
+library(loo)
 data = read_csv(here::here("data/02-analysis_data/analysis_data.csv"))
 # Read the Parquet file
 analysis_data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet"))
@@ -45,7 +47,7 @@ The remainder of this paper is structured as follows. @sec-data....
 
 ## Overview {#sec-dataoverview}
 
-We use the polling data to forecast the potential outcomes of the 2024 U.S. presidential election between Kamala Harris and Donald Trump.The dataset was obtained from https://projects.fivethirtyeight.com/polls/president-general/2024/national/ or (FiveThirtyEight’s “Poll of Polls” for the 2024 U.S. Presidential election [@fivethirtyeight2024]). It provides a comprehensive view of voter preferences through aggregated results from numerous national polls conducted by various polling organizations. The dataset was simulated, cleaned, analyzed, and tested using the R programming language [@talia], tidyverse [@citetidyverse], knitr [@citeknitr], ggplot2 [@citeggplot2], gt[@gt].
+We use the polling data to forecast the potential outcomes of the 2024 U.S. presidential election between Kamala Harris and Donald Trump.The dataset was obtained from https://projects.fivethirtyeight.com/polls/president-general/2024/national/ or (FiveThirtyEight’s “Poll of Polls” for the 2024 U.S. Presidential election [@fivethirtyeight2024]). It provides a comprehensive view of voter preferences through aggregated results from numerous national polls conducted by various polling organizations. The dataset was simulated, cleaned, analyzed, and tested using the R programming language [@talia], tidyverse [@citetidyverse], knitr [@citeknitr], ggplot2 [@citeggplot2] for plots, gt[@gt] for tables, tidyr[@R-tidyr], arrow[@R-arrow] for parquet, here[@R-here], rstanarm[@R-rstanarm], broom[@R-broom], loo[@R-loo], lubridate [@R-lubridate], while tibble [@R-tibble] helped simplify data frame management. The testthat package [@R-testthat] was essential for unit testing and ensuring code reliability, and we employed styler [@R-styler] for reformatting and maintaining a consistent code style.
 
 ## Variables
 
@@ -187,7 +189,6 @@ reliability_table
 #| label: fig-reliability
 #| fig-cap: "Average Support Percentage by Pollster Reliability"
 #| echo: false
-library(ggplot2)
 
 # Create a more aesthetic bar chart with alpha and no labels
 ggplot(summary_data, aes(x = reliability, y = mean_pct, fill = candidate_name)) +
@@ -224,9 +225,6 @@ Polling methodology is a critical factor that influences the results of any surv
 #| label: tbl-methodology
 #| tbl-cap: "Table of Methodologies comparing the Mean Support Percentage for Donald Trump and Kamala Harris with Difference (Kamala Harris - Donald Trump)"
 #| echo: false
-
-library(tidyverse)
-library(gt)
 
 # Define the 11 categories
 categories <- c("Mail-to-Phone", "Mail-to-Web", "Email", "Live Phone", 
@@ -287,8 +285,6 @@ The impact of sample size (sample_size) on the accuracy of polling results was e
 #| fig-cap: "Candidate Vote Percentages by Sample Size Category"
 #| echo: false
 # Categorizing sample size into small, medium, and large groups
-library(tidyverse)
-library(ggplot2)
 
 # Remove rows with NA values in the 'sample_size' column and keep only rows for Kamala Harris and Donald Trump
 filtered_data <- data %>%
@@ -356,7 +352,6 @@ sponsorship_summary_data <- data %>%
     sd_pct = sd(pct),
     .groups = 'drop'
   )
-library(ggplot2)
 
 # Create the bar chart comparing vote percentages by sponsorship type
 ggplot(sponsorship_summary_data, aes(x = sponsor_candidate_party, y = avg_pct, fill = candidate_name)) +
@@ -532,7 +527,7 @@ Regression tables must not contain stars.
 #| warning: false
 #| message: false
 
-library(rstanarm)
+
 
 first_model <-
   readRDS(file = here::here("models/first_model.rds"))
@@ -737,11 +732,7 @@ The models were implemented in R using the `tidyverse` and `rstanarm` packages. 
 To compare the linear models' goodness-of-fit while penalizing complexity, we use AIC and BIC. These metrics help identify the most appropriate model for the data, balancing explanatory power and parsimony. The results are presented in (@tbl-AIC):
 
 ```{r, echo=FALSE, include=FALSE, warning=FALSE}
-library(tidyverse)
-library(broom)
-library(rstanarm)
-library(ggplot2)
-library(loo)
+
 
 # Define the models
 model_date <- lm(pct ~ end_date, data = analysis_data)
@@ -769,7 +760,7 @@ model_bayesian <- stan_glm(
 model_comparison <- tibble(
   Model = c("model_date", "model_date_pollster", "model_date_pollster_national"),
   AIC = c(AIC(model_date), AIC(model_date_pollster), AIC(model_date_pollster_national)),
-  BIC = c(BIC(model_date), BIC(model_date_pollster), BIC(model_date_pollster_national))
+  BIC = c(BIC(model_date), BIC(model_date_pollster), BIC(model_date_pollster_national)),
 )
 
 # Print the model comparison table using gt
@@ -795,8 +786,7 @@ We use leave-one-out cross-validation (LOO) for the Bayesian model to assess pre
 #| echo: false
 
 # Load necessary libraries
-library(gt)
-library(loo)
+
 
 # Run LOO on the Bayesian model
 loo_result <- loo(model_bayesian)
