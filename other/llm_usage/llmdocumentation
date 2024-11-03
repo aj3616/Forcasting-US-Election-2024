@@ -1,3 +1,667 @@
+#### Preamble ####
+# Purpose: Simulates a dataset of US elections
+# Author: Amy Jin
+# Date: 18 October 2024
+# Contact: amyzh.jin@mail.utoronto,ca
+# License: MIT
+# Pre-requisites: The tidyverse package must be installed
+# Any other information needed? Make sure you are in the Forcasting-US-Elections rproj
+
+
+#### Workspace setup ####
+library(tidyverse)
+library(dplyr)
+library(lubridate)
+
+library(tibble)
+
+# Set the seed for reproducibility
+set.seed(106)
+
+# Simulate polling data
+polling_data <- tibble(
+  poll_id = 1:10,
+  pollster = c("YouGov", "Ipsos", "SurveyUSA", "Morning Consult", "Quinnipiac", 
+               "Emerson College", "Marist College", "Rasmussen Reports", 
+               "Fox News", "CNN"),
+  sample_size = sample(800:1600, 10, replace = TRUE),
+  population = sample(c("Likely Voters", "Registered Voters"), 10, replace = TRUE),
+  candidate_name = rep(c("Kamala Harris", "Donald Trump"), 5),
+  pct = sample(40:60, 10, replace = TRUE)
+)
+
+# Simulate sample data
+sample_data <- tibble(
+  pollster_id = sample(1:100, 50, replace = TRUE),
+  pollster = sample(c("Pollster A", "Pollster B", "Pollster C"), 50, replace = TRUE),
+  sponsors = sample(c("Sponsor 1", "Sponsor 2", "Sponsor 3"), 50, replace = TRUE),
+  transparency_score = sample(c(NA, seq(0, 10, by = 0.5)), 50, replace = TRUE),
+  state = sample(c("CA", "TX", "NY", "FL", "PA"), 50, replace = TRUE),
+  start_date = sample(seq.Date(from = as.Date("2024-01-01"), to = as.Date("2024-10-01"), by = "day"), 50, replace = TRUE),
+  end_date = sample(seq.Date(from = as.Date("2024-01-02"), to = as.Date("2024-10-03"), by = "day"), 50, replace = TRUE),
+  sponsor_candidate_party = sample(c("Democratic", "Republican"), 50, replace = TRUE),
+  endorsed_candidate_name = sample(c("Candidate A", "Candidate B"), 50, replace = TRUE),
+  endorsed_candidate_party = sample(c("Democratic", "Republican"), 50, replace = TRUE),
+  sample_size = sample(c(NA, 500:2000), 50, replace = TRUE),
+  population = sample(c("Adults", "Likely Voters"), 50, replace = TRUE),
+  race_id = sample(1:10, 50, replace = TRUE),
+  cycle = rep(2024, 50),
+  election_date = rep(as.Date("2024-11-05"), 50),
+  candidate_id = sample(100:200, 50, replace = TRUE)
+)
+
+
+
+#### Save data ####
+write_csv(sample_data, "data/00-simulated_data/simulated_data.csv")
+modify the preamble
+ChatGPT 说：
+
+ChatGPT
+Here's an updated preamble reflecting the purpose and details of the simulation:
+
+r
+复制代码
+#### Preamble ####
+# Purpose: Simulates a dataset of US elections with sample polling data
+# Author: Amy Jin
+# Date: 18 October 2024
+# Contact: amyzh.jin@mail.utoronto.ca
+# License: MIT
+# Pre-requisites: 
+#   - The `tidyverse` package must be installed and loaded
+#   - Ensure that you are in the `Forcasting-US-Elections` R project directory
+#   - The directory "data/00-simulated_data/" must exist for saving the data file
+# Any other information needed? 
+#   - Run this script to generate and save the simulated dataset
+This preamble specifies the purpose, author information, pre-requisites, and additional details needed to run the script. Let me know if you need any further adjustments!
+
+
+
+
+
+
+您说：
+#### Preamble ####
+# Purpose: Tests the structure and validity of the simulated polling dataset
+# Author: Rohan Alexander
+# Date: 26 September 2024
+# Contact: rohan.alexander@utoronto.ca
+# License: MIT
+# Pre-requisites:
+# - The tidyverse package must be installed and loaded
+# - 00-simulate_data.R must have been run
+# Any other information needed? Make sure you are in the starter_folder rproj
+
+#### Workspace setup ####
+library(tidyverse)
+
+# Load the simulated dataset
+analysis_data <- read_csv("data/00-simulated_data/simulated_data.csv")
+
+# Test if the dataset was successfully loaded
+if (exists("analysis_data")) {
+  message("Test Passed: The dataset was successfully loaded.")
+} else {
+  stop("Test Failed: The dataset could not be loaded.")
+}
+
+#### Test data ####
+
+# 1. Check if the dataset has 50 rows
+if (nrow(analysis_data) == 50) {
+  message("Test Passed: The dataset has 50 rows.")
+} else {
+  stop("Test Failed: The dataset does not have 50 rows.")
+}
+
+# 2. Check if the dataset has 15 columns
+if (ncol(analysis_data) == 16) {
+  message("Test Passed: The dataset has 16 columns.")
+} else {
+  stop("Test Failed: The dataset does not have 16 columns.")
+}
+
+# 3. Check if 'pollster_id' contains only numeric values
+if (all(is.numeric(analysis_data$pollster_id))) {
+  message("Test Passed: 'pollster_id' contains only numeric values.")
+} else {
+  stop("Test Failed: 'pollster_id' contains non-numeric values.")
+}
+
+# 4. Check if 'sample_size' values are within the expected range (500 to 2000)
+if (all(na.omit(analysis_data$sample_size) >= 500 & na.omit(analysis_data$sample_size) <= 2000)) {
+  message("Test Passed: 'sample_size' values are within the expected range.")
+} else {
+  stop("Test Failed: 'sample_size' values are outside the expected range.")
+}
+
+
+# 6. Check if 'population' contains only valid categories
+valid_populations <- c("Adults", "Likely Voters", "Registered Voters")
+if (all(analysis_data$population %in% valid_populations)) {
+  message("Test Passed: 'population' contains only valid categories.")
+} else {
+  stop("Test Failed: 'population' contains invalid categories.")
+}
+
+# 7. Check if 'transparency_score' is between 0 and 10 or NA
+if (all(is.na(analysis_data$transparency_score) |
+  (analysis_data$transparency_score >= 0 & analysis_data$transparency_score <= 10))) {
+  message("Test Passed: 'transparency_score' is between 0 and 10 or NA.")
+} else {
+  stop("Test Failed: 'transparency_score' is outside the range 0 to 10 or not NA.")
+}
+
+# 8. Check if 'cycle' is always 2024
+if (all(analysis_data$cycle == 2024)) {
+  message("Test Passed: 'cycle' is always 2024.")
+} else {
+  stop("Test Failed: 'cycle' contains values other than 2024.")
+}
+
+# 9. Check if 'candidate_id' contains only numeric values
+if (all(is.numeric(analysis_data$candidate_id))) {
+  message("Test Passed: 'candidate_id' contains only numeric values.")
+} else {
+  stop("Test Failed: 'candidate_id' contains non-numeric values.")
+}
+
+# 10. Check if there are no missing values in 'pollster', 'sponsors', and 'state'
+if (all(!is.na(analysis_data$pollster) & !is.na(analysis_data$sponsors) & !is.na(analysis_data$state))) {
+  message("Test Passed: There are no missing values in 'pollster', 'sponsors', or 'state'.")
+} else {
+  stop("Test Failed: There are missing values in 'pollster', 'sponsors', or 'state'.")
+}
+modify the preamble according to the previous response(author, contact)
+ChatGPT 说：
+
+ChatGPT
+Here's the modified preamble with the updated author information and contact details:
+
+r
+复制代码
+#### Preamble ####
+# Purpose: Tests the structure and validity of the simulated polling dataset
+# Author: Amy Jin
+# Date: 18 October 2024
+# Contact: amyzh.jin@mail.utoronto.ca
+# License: MIT
+# Pre-requisites:
+# - The `tidyverse` package must be installed and loaded
+# - 00-simulate_data.R must have been run
+# Any other information needed? Make sure you are in the `Forcasting-US-Elections` rproj
+This preamble now includes the correct author name, email contact, and project name. Let me know if you need further adjustments!
+
+
+
+
+
+
+您说：
+#### Preamble ####
+# Purpose: Tests simulation and analysis data
+# Author: Amy Jin
+# Date: 18 October 2024
+# Contact: amyzh.jin@mail.utoronto,ca
+# License: MIT
+# Pre-requisites: [...UPDATE THIS...]
+# Any other information needed? [...UPDATE THIS...]
+
+
+#### Workspace setup ####
+library(tidyverse)
+library(testthat)
+library(arrow)
+library(here)
+analysis_data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet"))
+
+
+#### Preamble ####
+# Purpose: Tests simulation and analysis data
+# Author: Amy Jin
+# Date: 18 October 2024
+# Contact: amyzh.jin@mail.utoronto,ca
+# License: MIT
+# Pre-requisites: tidyverse, testthat, arrow, and here packages installed
+# Any other information needed? Make sure the data file is in the correct directory
+
+
+#### Workspace setup ####
+library(tidyverse)
+library(testthat)
+library(arrow)
+library(here)
+
+# Load the data
+analysis_data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet"))
+
+#### Test data ####
+
+# 1. Test if the data was loaded successfully
+test_that("Dataset loads correctly", {
+  expect_true(exists("analysis_data"))
+})
+
+# 2. Test if the data has rows
+test_that("Dataset has rows", {
+  expect_gt(nrow(analysis_data), 0)
+})
+
+# 3. Test if the data has columns
+test_that("Dataset has columns", {
+  expect_gt(ncol(analysis_data), 0)
+})
+
+# 4. Test if there are no missing values in essential columns
+test_that("No missing values in essential columns", {
+  essential_cols <- c("pollster_id", "pollster", "state", "start_date", "end_date", "sample_size")
+  expect_true(all(!is.na(analysis_data[, essential_cols])))
+})
+
+# 5. Test if sample_size is always greater than zero
+test_that("Sample size is positive", {
+  expect_true(all(analysis_data$sample_size > 0))
+})
+
+# 6. Test if start_date is before end_date
+test_that("Start date is before end date", {
+  expect_true(all(as.Date(analysis_data$start_date) < as.Date(analysis_data$end_date)))
+})
+
+# 7. Test if pct values are between 0 and 100
+test_that("Percentages are between 0 and 100", {
+  expect_true(all(analysis_data$pct >= 0 & analysis_data$pct <= 100))
+})
+
+# 8. Test if pollscore is numeric and has finite values
+test_that("Pollscore is numeric and finite", {
+  expect_true(is.numeric(analysis_data$pollscore))
+  expect_true(all(is.finite(analysis_data$pollscore), na.rm = TRUE))
+})
+
+# 9. Test if reliability only contains valid values
+test_that("Reliability contains valid values", {
+  valid_reliabilities <- c("Low", "Medium", "High", NA)
+  expect_true(all(analysis_data$reliability %in% valid_reliabilities))
+})
+
+# 10. Test if methodology is a non-empty string
+test_that("Methodology is a non-empty string", {
+  expect_true(all(nchar(trimws(analysis_data$methodology)) > 0, na.rm = TRUE))
+})
+update the preamble according to what the script is doing
+ChatGPT 说：
+
+ChatGPT
+Here's an updated preamble to better reflect the purpose of the script and its requirements:
+
+r
+复制代码
+#### Preamble ####
+# Purpose: Validate the structure and content of the simulated polling dataset
+# Author: Amy Jin
+# Date: 18 October 2024
+# Contact: amyzh.jin@mail.utoronto.ca
+# License: MIT
+# Pre-requisites:
+# - The `tidyverse`, `testthat`, `arrow`, and `here` packages must be installed and loaded
+# - The dataset file "analysis_data.parquet" should be located in the "data/02-analysis_data" directory
+# Any other information needed? Make sure you are in the correct project directory before running the script
+This version clearly specifies the purpose of the script, the author’s details, the necessary packages, and where the data file should be. Let me know if there are any other changes you'd like!
+
+
+
+
+
+
+您说：
+#### Preamble ####
+# Purpose: Create, compare, and select the best model to predict the 2024 US election result
+# Author: [Your Name]
+# Date: [Update with today's date]
+# Contact: [Your Email]
+# License: MIT
+# Pre-requisites: Ensure all necessary data and libraries are available
+# Any other information needed? [Update with additional context]
+
+#### Workspace setup ####
+library(tidyverse)
+library(rstanarm)
+library(broom)
+library(ggplot2)
+
+#### Read data ####
+analysis_data <- read_parquet("data/02-analysis_data/analysis_data.parquet")
+
+#### Define models ####
+
+# Model 1: pct as a function of end_date (time trend only)
+model_date <- lm(pct ~ end_date, data = analysis_data)
+
+# Model 2: pct as a function of end_date and pollster (time trend + pollster effect)
+model_date_pollster <- lm(pct ~ end_date + pollster, data = analysis_data)
+
+# Model 3: pct as a function of end_date, pollster, and is_national (includes national vs. state poll effect)
+model_date_pollster_national <- lm(pct ~ end_date + pollster + is_national, data = analysis_data)
+
+# Model 4: Bayesian model using rstanarm
+model_bayesian <- stan_glm(pct ~ end_date + pollster + is_national,
+                           data = analysis_data,
+                           family = gaussian,
+                           prior = normal(0, 5),
+                           chains = 4, iter = 2000)
+
+#### Compare models ####
+# Calculate AIC and BIC for model comparison
+model_comparison <- tibble(
+  Model = c("model_date", "model_date_pollster", "model_date_pollster_national"),
+  AIC = c(AIC(model_date), AIC(model_date_pollster), AIC(model_date_pollster_national)),
+  BIC = c(BIC(model_date), BIC(model_date_pollster), BIC(model_date_pollster_national))
+)
+
+# Print the model comparison table
+print("Model Comparison Table:")
+print(model_comparison)
+
+
+
+#### Select the best model ####
+# Based on AIC/BIC or cross-validation results, we select the best model
+best_model <- model_date_pollster 
+
+#### Use the best model to predict the winner ####
+# Get predictions for pct using the best model
+analysis_data <- analysis_data %>%
+  mutate(final_prediction = predict(best_model))
+
+# Aggregate predictions by candidate to get the overall predicted support
+final_results <- analysis_data %>%
+  group_by(candidate_name) %>%
+  summarise(predicted_support = mean(final_prediction, na.rm = TRUE)) %>%
+  arrange(desc(predicted_support))
+
+# Print the final predicted results
+print("Final Predicted Results:")
+print(final_results)
+
+#### Save the best model ####
+saveRDS(best_model, file = "models/best_model.rds")
+
+
+
+harris_data <- read_parquet("data/02-analysis_data/harris_data.parquet")
+
+#### Define models ####
+
+# Model 1: pct as a function of end_date (time trend only)
+model_date <- lm(pct ~ end_date, data = harris_data)
+
+# Model 2: pct as a function of end_date and pollster (time trend + pollster effect)
+model_date_pollster <- lm(pct ~ end_date + pollster, data = harris_data)
+
+# Model 3: pct as a function of end_date, pollster, and is_national (includes national vs. state poll effect)
+model_date_pollster_national <- lm(pct ~ end_date + pollster + is_national, data = harris_data)
+
+# Model 4: Bayesian model using rstanarm
+model_bayesian <- stan_glm(pct ~ end_date + pollster + is_national,
+                           data = harris_data,
+                           family = gaussian,
+                           prior = normal(0, 5),
+                           chains = 4, iter = 2000)
+
+#### Compare models ####
+# Calculate AIC and BIC for model comparison
+model_comparison <- tibble(
+  Model = c("model_date", "model_date_pollster", "model_date_pollster_national"),
+  AIC = c(AIC(model_date), AIC(model_date_pollster), AIC(model_date_pollster_national)),
+  BIC = c(BIC(model_date), BIC(model_date_pollster), BIC(model_date_pollster_national))
+)
+
+# Print the model comparison table
+print("Model Comparison Table:")
+print(model_comparison)
+
+
+
+#### Select the best model ####
+# Based on AIC/BIC or cross-validation results, we select the best model
+best_model <- model_date_pollster 
+
+#### Use the best model to predict the winner ####
+# Get predictions for pct using the best model
+harris_data <- harris_data %>%
+  mutate(final_prediction = predict(best_model))
+
+# Aggregate predictions by candidate to get the overall predicted support
+final_results <- harris_data %>%
+  group_by(candidate_name) %>%
+  summarise(predicted_support = mean(final_prediction, na.rm = TRUE)) %>%
+  arrange(desc(predicted_support))
+
+# Print the final predicted results
+print("Final Predicted Results:")
+print(final_results)
+
+#### Save the best model ####
+saveRDS(best_model, file = "models/harris_model.rds")
+
+update the preamble
+ChatGPT 说：
+
+ChatGPT
+Here's the updated preamble to reflect the content and purpose of your script:
+
+r
+复制代码
+#### Preamble ####
+# Purpose: Create, compare, and select the best model to predict the 2024 US election result using different modeling approaches
+# Author: Amy Jin
+# Date: [Update with today's date]
+# Contact: amyzh.jin@mail.utoronto.ca
+# License: MIT
+# Pre-requisites:
+# - Ensure the `tidyverse`, `rstanarm`, `broom`, and `ggplot2` packages are installed and loaded
+# - Ensure the data files "analysis_data.parquet" and "harris_data.parquet" are located in the "data/02-analysis_data" directory
+# - Make sure you are in the correct project directory before running the script
+# Any other information needed? The script uses Bayesian modeling and compares models using AIC/BIC metrics
+This preamble clearly describes the purpose of the script, the author details, data requirements, and package dependencies.
+
+
+
+
+
+
+您说：
+#This script is soley for the purpose of reformatting
+library(styler)
+
+# Reformat an R script
+styler::style_file("scripts/00-simulate_data.R")
+styler::style_file("scripts/01-test_simulated_data.R")
+styler::style_file("scripts/03-clean_data.R")
+styler::style_file("scripts/04-test_analysis_data.R")
+styler::style_file("scripts/06-model_data.R")
+write a preamble
+ChatGPT 说：
+
+ChatGPT
+Here's a suitable preamble for your script:
+
+r
+复制代码
+#### Preamble ####
+# Purpose: Reformat R scripts for consistent style and readability
+# Author: Amy Jin
+# Date: [Update with today's date]
+# Contact: amyzh.jin@mail.utoronto.ca
+# License: MIT
+# Pre-requisites: The `styler` package must be installed and loaded
+# Any other information needed? Ensure the specified script files are in the correct directory
+This preamble outlines the purpose of the script, which is to reformat other R scripts for better readability and style consistency. It also specifies the author details, date, and package dependencies.
+
+
+
+
+
+
+您说：
+give me bibtex for these r packages
+
+library(tidyr)
+library(arrow)
+library(here)
+library(rstanarm)
+library(broom)
+library(loo)
+ChatGPT 说：
+
+ChatGPT
+Here are the BibTeX entries for the specified R packages:
+
+bibtex
+复制代码
+@Manual{R-tidyr,
+  title = {tidyr: Tidy Messy Data},
+  author = {Hadley Wickham and Lionel Henry},
+  year = {2023},
+  note = {R package version 1.3.0},
+  url = {https://CRAN.R-project.org/package=tidyr}
+}
+
+@Manual{R-arrow,
+  title = {arrow: Integration to 'Apache' 'Arrow'},
+  author = {Neal Richardson and Ursa Labs},
+  year = {2023},
+  note = {R package version 12.0.0},
+  url = {https://CRAN.R-project.org/package=arrow}
+}
+
+@Manual{R-here,
+  title = {here: A Simpler Way to Find Your Files},
+  author = {Kirill Müller},
+  year = {2023},
+  note = {R package version 1.0.1},
+  url = {https://CRAN.R-project.org/package=here}
+}
+
+@Manual{R-rstanarm,
+  title = {rstanarm: Bayesian Applied Regression Modeling via Stan},
+  author = {Ben Goodrich and Jonah Gabry and Imad Ali and Sam Brilleman and Rok Češnovar},
+  year = {2023},
+  note = {R package version 2.21.5},
+  url = {https://mc-stan.org/rstanarm/}
+}
+
+@Manual{R-broom,
+  title = {broom: Convert Statistical Objects into Tidy Tibbles},
+  author = {David Robinson and Alex Hayes and Simon Couch and Nicholas Tierney and Max Kuhn},
+  year = {2023},
+  note = {R package version 1.0.5},
+  url = {https://CRAN.R-project.org/package=broom}
+}
+
+@Manual{R-loo,
+  title = {loo: Efficient Leave-One-Out Cross-Validation and WAIC for Bayesian Models},
+  author = {Aki Vehtari and Jonah Gabry and Yuling Yao and Andrew Gelman and Mans Magnusson and Paul-Christian Bürkner},
+  year = {2023},
+  note = {R package version 2.6.0},
+  url = {https://mc-stan.org/loo/}
+}
+Make sure to adjust the package versions and authors if they differ from your installed versions. You can always retrieve BibTeX entries directly from CRAN or the package documentation for the most up-to-date information.
+
+
+
+
+
+
+您说：
+library(lubridate)
+library(tibble)
+library(testthat)
+library(styler)
+get bibtex for these r packages
+ChatGPT 说：
+
+ChatGPT
+Here are the BibTeX entries for the specified R packages:
+
+bibtex
+复制代码
+@Manual{R-lubridate,
+  title = {lubridate: Make Dealing with Dates a Little Easier},
+  author = {Garrett Grolemund and Hadley Wickham},
+  year = {2023},
+  note = {R package version 1.9.2},
+  url = {https://CRAN.R-project.org/package=lubridate}
+}
+
+@Manual{R-tibble,
+  title = {tibble: Simple Data Frames},
+  author = {Hadley Wickham and Kirill Müller},
+  year = {2023},
+  note = {R package version 3.2.1},
+  url = {https://CRAN.R-project.org/package=tibble}
+}
+
+@Manual{R-testthat,
+  title = {testthat: Unit Testing for R},
+  author = {Hadley Wickham and Jim Hester and Lionel Henry and Winston Chang},
+  year = {2023},
+  note = {R package version 3.1.10},
+  url = {https://CRAN.R-project.org/package=testthat}
+}
+
+@Manual{R-styler,
+  title = {styler: Non-Invasive Pretty Printing of R Code},
+  author = {Lorenz Walthert and Nicolas Meyer},
+  year = {2023},
+  note = {R package version 1.8.1},
+  url = {https://CRAN.R-project.org/package=styler}
+}
+Ensure to verify the versions and update them accordingly if needed.
+
+
+
+
+
+
+您说：
+write in text citations for library(lubridate)
+library(tibble)
+library(testthat)
+library(styler)like this in a paragraph tidyverse [@citetidyverse], knitr [@citeknitr], ggplot2 [@citeggplot2] for plots, gt[@gt] for tables, tidyr[@R-tidyr], arrow[@R-arrow] for parquet, here[@R-here], rstanarm[@R-rstanarm], broom[@R-broom], loo[@R-loo].
+
+3/3
+
+ChatGPT 说：
+
+ChatGPT
+For handling dates and times, we used lubridate [@R-lubridate], while tibble [@R-tibble] helped simplify data frame management. The testthat package [@R-testthat] was essential for unit testing and ensuring code reliability, and we employed styler [@R-styler] for reformatting and maintaining a consistent code style.
+
+
+
+
+
+
+您说：
+tidyverse [@citetidyverse], knitr [@citeknitr], ggplot2 [@citeggplot2] for plots, gt[@gt] for tables, tidyr[@R-tidyr], arrow[@R-arrow] for parquet, here[@R-here], rstanarm[@R-rstanarm], broom[@R-broom], loo[@R-loo], lubridate [@R-lubridate], while tibble [@R-tibble] helped simplify data frame management. The testthat package [@R-testthat] was essential for unit testing and ensuring code reliability, and we employed styler [@R-styler] for reformatting and maintaining a consistent code style.
+add a really short usage explanation for each package
+ChatGPT 说：
+
+ChatGPT
+We used tidyverse [@citetidyverse] for data manipulation and wrangling, knitr [@citeknitr] for dynamic report generation, and ggplot2 [@citeggplot2] for creating detailed plots. The gt package [@gt] was used for producing elegant tables, while tidyr [@R-tidyr] aided in reshaping data structures. The arrow package [@R-arrow] facilitated reading and writing parquet files efficiently, and here [@R-here] managed file paths to ensure portability. For Bayesian modeling, we relied on rstanarm [@R-rstanarm], and broom [@R-broom] was used to tidy model outputs. The loo package [@R-loo] helped with model comparison and validation through efficient leave-one-out cross-validation. lubridate [@R-lubridate] streamlined date-time operations, while tibble [@R-tibble] provided a cleaner, more user-friendly format for data frames. The testthat package [@R-testthat] was essential for writing robust unit tests to ensure reliability, and styler [@R-styler] kept the codebase well-formatted and consistent.
+
+
+
+
+
+
+
+
+
+
+ChatGPT 也可能会犯错。请核查重要信息。
 Move into a group that you want to on Quercus (please let me know if all the groups are full).
 
 Use the Spotify API to download some data about a group of interest to you.
