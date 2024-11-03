@@ -1,6 +1,6 @@
 ---
 title: "Forecasting the US Election 2024"
-subtitle: "Modeling the U.S. Polling Data to forecast the outcome of he 2024 U.S. Presidential Elections"
+subtitle: "Modeling the U.S. Polling Data to forecast the outcome of the 2024 U.S. Presidential Elections"
 author: 
   - Maryam Ansari
   - Amy Jin
@@ -36,66 +36,34 @@ analysis_data <- read_parquet(here::here("data/02-analysis_data/analysis_data.pa
 
 ```
 
+\newpage
 # Introduction
 
 As of October-November 2024, the U.S. presidential election is almost at its final stage, with all candidates actively campaigning across numerous states. The presidential election will happen on November 5, 2024 [@calendar]. The two major parties, Democrats and Republicans, are in particular focus. Former President Donald Trump represents the Republican party, and President Joe Biden initially led re-election for the Democrats. However, Biden has dropped out, and Kamala Harris has taken over as the Democratic nominee [@g24], who is the first Black woman nominee. Harris is the Both candidates are focusing their efforts on securing votes by addressing their aspect on social issues.
 
 Pollsters and election forecasting with data evidence are important in predicting election outcomes. Polling can highlight underlying or emerging issues, as well as reveal voter preferences. The polling outcomes allow campaigns of different parties to strategically target specific demographics. For example in 2012, pollsters and data modellers such as Nate Silver have all used survey research and statistical models to successfully predict the result of Barack Obama's victory in the presidential election with consistent and reliable forecasts [@b17].
 
-The remainder of this paper is structured as follows. @sec-data....
+The rest of this paper is organized as follows. @sec-data covers the data utilized in this analysis, highlighting key variables and sources, particularly focusing on the quality metrics that influence polling accuracy. @sec-model details our modeling approach for each candidate, drawing on insights from recent electoral cycles. @sec-results provides our predictions for the Electoral College based on the model outputs.  @sec-discussion examines the implications of our findings and offers suggestions for future research. Finally, the @sec-appendixa and @sec-appendixb assesses YouGov's polling methodology alongside our proposed survey methodology.
 
 # Polling Data {#sec-data}
 
 ## Overview {#sec-dataoverview}
 
-We use the polling data to forecast the potential outcomes of the 2024 U.S. presidential election between Kamala Harris and Donald Trump.The dataset was obtained from https://projects.fivethirtyeight.com/polls/president-general/2024/national/ or (FiveThirtyEight’s “Poll of Polls” for the 2024 U.S. Presidential election [@fivethirtyeight2024]). It provides a comprehensive view of voter preferences through aggregated results from numerous national polls conducted by various polling organizations. The dataset was simulated, cleaned, analyzed, and tested using the R programming language [@talia], tidyverse [@citetidyverse], knitr [@citeknitr], ggplot2 [@citeggplot2] for plots, gt[@gt] for tables, tidyr[@R-tidyr], arrow[@R-arrow] for parquet, here[@R-here], rstanarm[@R-rstanarm], broom[@R-broom], loo[@R-loo], lubridate [@R-lubridate], while tibble [@R-tibble] helped simplify data frame management. The testthat package [@R-testthat] was essential for unit testing and ensuring code reliability, and we employed styler [@R-styler] for reformatting and maintaining a consistent code style.
+We use the polling data to forecast the potential outcomes of the 2024 U.S. presidential election between Kamala Harris and Donald Trump.The dataset was obtained from FiveThirtyEight’s “Poll of Polls” for the 2024 U.S. Presidential election [@fivethirtyeight2024]. It provides a comprehensive view of voter preferences through aggregated results from numerous national polls conducted by various polling organizations. 
+
+The dataset was simulated, cleaned, analyzed, and tested using the R programming language [@talia], tidyverse [@citetidyverse], knitr [@citeknitr], ggplot2 [@citeggplot2] for plots, gt[@gt] for tables, tidyr[@R-tidyr], arrow[@R-arrow] for parquet, here[@R-here], rstanarm[@R-rstanarm], broom[@R-broom], loo[@R-loo], lubridate [@R-lubridate], while tibble [@R-tibble] helped simplify data frame management. The testthat package [@R-testthat] was essential for unit testing and ensuring code reliability, and we employed styler [@R-styler] for reformatting and maintaining a consistent code style.
 
 ## Variables
 
 The dataset comprises several key variables of interest, including but not limited to,
 
-**poll_id:** a unique identifier for each poll conducted pollster: which indicates the organization conducting the poll
+- **poll_id:** a unique identifier for each poll conducted pollster: which indicates the organization conducting the poll
+- **sample_size:** representing the total number of respondents
+- **population:** specifying the voting group described (e.g., likely voters)
+- **candidate_name:** the names of the candidates in the poll (e.g., Kamala Harris, Donald Trump)
+- **pct:** the percentage of the vote or support received by each candidate.
 
-**sample_size:** representing the total number of respondents
-
-**population:** specifying the voting group described (e.g., likely voters)
-
-**candidate_name:** the names of the candidates in the poll (e.g., Kamala Harris, Donald Trump)
-
-**pct:** the percentage of the vote or support received by each candidate.
-
-These variables allow us to explore various dimensions of polling data, such as trends in voter support across different states and the influence of pollster reliability on polling outcomes. The table below provides a snapshot of the polling data, displaying the first ten entries. This includes the pollster names, sample sizes, and the percentage of support for each candidate, which can reveal patterns in public opinion and help identify how different organizations may report varying levels of support for Kamala Harris and Donald Trump.
-
-### Response variables:
-
-The main response variable of our analysis is the percentage support (pct) for Donald Trump and Kamala Harris shown in each poll. This number tells us what percentage of people said they would vote for each candidate when the survey was taken. We use it as the basis of our electoral prediction as it helps us understand how people feel about the candidates.
-
-TODO: descibe
-
-```{r}
-#| label: tbl-pct
-#| tbl-cap: "Histogram of Trump Support Percentage (pct)"
-#| echo: false
-ggplot(data, aes(x = pct)) +
-  geom_histogram(binwidth = 5, fill = "#e31a1c", color = "black") +
-  theme_minimal() +
-  labs(
-    x = "Percentage Support (pct)",
-    y = "Frequency"
-  )
-```
-
-### Predictor variables:
-
-Our model takes into account various variables; their names and descriptions are,
-
-**Pollster**: The name of the polling organization that conducted the poll (e.g., YouGov, RMG Research).
-
-**State:** The U.S. state where the poll was conducted.
-
-**Sample Size:** The total number of respondents that participated in the poll. End Date: The date the poll ended.
-
-These variables were selected and kept due to their evident relationship with the response variable and the significance of it. More details of the relationships and model are provided in later sections.
+These variables allow us to explore various dimensions of polling data, such as trends in voter support across different states and the influence of pollster reliability on polling outcomes. @tbl-firstten below provides a snapshot of the polling data, displaying the first ten entries. This includes the pollster names, sample sizes, and the percentage of support for each candidate, which can reveal patterns in public opinion and help identify how different organizations may report varying levels of support for Kamala Harris and Donald Trump.
 
 ```{r}
 #| label: tbl-firstten
@@ -130,21 +98,41 @@ firstten
 
 ```
 
-### Data Manipulation and cleaning:
+### Response variables:
 
-The data was cleaned, filtered and mutated to better align with our prediction model. The software and packages used have been highlighted in @sec-dataoverview. The key steps of our cleaning process were:
+The main response variable of our analysis is the percentage support (pct) for Donald Trump and Kamala Harris shown in each poll. This number tells us what percentage of people said they would vote for each candidate when the survey was taken. We use it as the basis of our electoral prediction as it helps us understand how people feel about the candidates.
 
-Filtered out lower quality polls by only keeping polls that met a set numeric grade threshold (numeric_grade \>= 2.5). Filtered out pollsters that had less than 5 entries. Filtered out data that was collected before July 21st, 2024. Added a variable num_trump to count the number of votes for Donald Trump using pct. For data entries where the state was missing, they were categorised as “National”, to standardize the data.
 
-The dataset had several other variables that we did not include in our analysis. These variables were either majorly missing values or not informative enough to be included.
+```{r, fig.pos='H'}
+#| label: tbl-pct
+#| tbl-cap: "Histogram of Trump Support Percentage (pct)"
+#| echo: false
+ggplot(data, aes(x = pct)) +
+  geom_histogram(binwidth = 5, fill = "#e31a1c", color = "black") +
+  theme_minimal() +
+  labs(
+    x = "Percentage Support (pct)",
+    y = "Frequency"
+  )
+```
 
-## Summary statistics & Relationships
+### Predictor variables:
+
+Our model takes into account various variables; their names and descriptions are,
+
+- **Pollster**: The name of the polling organization that conducted the poll (e.g., YouGov, RMG Research).
+- **State:** The U.S. state where the poll was conducted.
+- **Sample Size:** The total number of respondents that participated in the poll. End Date: The date the poll ended.
+
+These variables were selected and kept due to their evident relationship with the response variable and the significance of it. More details of the relationships and model are provided in later sections.
+
+## Summary Statistics & Relationships
 
 ### Pollster Reliability and Election Outcome
 
-The relationship between polling organization reliability, as indicated by the pollscore, and the percentage of support (pct) for each candidate was examined. It is anticipated that more reliable pollsters will yield more accurate predictions. Consequently, polls were categorized into three tiers based on their pollscore: high reliability (pollscore greater than 0), medium reliability (pollscore between -1 and 0), and low reliability (pollscore less than -1). By comparing the average support percentages (pct) for Kamala Harris and Donald Trump across these tiers, this analysis sought to identify whether more reliable pollsters produce different outcomes than those deemed less reliable. Mean pct values were calculated for each category, and standard deviation was included to illustrate variability within the poll results. The table (@tbl-reliability) and bar chart @fig-reliability showing the average `pct` for each candidate across different levels of pollster reliability. Discussion: This analysis highlights whether pollsters with higher reliability scores offer more accurate predictions and if their estimates favor one candidate over the other.
+The relationship between polling organization reliability, as indicated by the pollscore, and the percentage of support (pct) for each candidate was examined. It is anticipated that more reliable pollsters will yield more accurate predictions. Consequently, polls were categorized into three tiers based on their pollscore: high reliability (pollscore greater than 0), medium reliability (pollscore between -1 and 0), and low reliability (pollscore less than -1). By comparing the average support percentages (pct) for Kamala Harris and Donald Trump across these tiers, this analysis sought to identify whether more reliable pollsters produce different outcomes than those deemed less reliable. Mean pct values were calculated for each category, and standard deviation was included to illustrate variability within the poll results. The table (@tbl-reliability) shows the average `pct` for each candidate across different levels of pollster reliability. However, the analysis shows the converse of our hypothesis to be true.
 
-```{r}
+```{r, fig.pos='H'}
 #| label: tbl-reliability
 #| tbl-cap: "Summary Statistics for Support Percentages Across Pollster Reliability Levels"
 #| echo: false
@@ -186,43 +174,11 @@ reliability_table <- summary_data %>%
 reliability_table
 ```
 
-```{r}
-#| label: fig-reliability
-#| fig-cap: "Average Support Percentage by Pollster Reliability"
-#| echo: false
-
-# Create a more aesthetic bar chart with alpha and no labels
-ggplot(summary_data, aes(x = reliability, y = mean_pct, fill = candidate_name)) +
-  geom_bar(stat = "identity", position = position_dodge(), width = 0.7, color = "black", alpha = 0.8) +
-  geom_errorbar(aes(ymin = mean_pct - sd_pct, ymax = mean_pct + sd_pct), 
-                width = 0.2, 
-                position = position_dodge(0.7)) +
-  labs(
-    subtitle = "Comparison of support percentages for Kamala Harris and Donald Trump",
-    x = "Pollster Reliability",
-    y = "Average Support (%)",
-    fill = "Candidate"
-  ) +
-  scale_fill_manual(values = c("Kamala Harris" = "#1f78b4", "Donald Trump" = "#e31a1c")) + # Custom colors
-  theme_minimal(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold", hjust = 0.5, size = 16),
-    plot.subtitle = element_text(hjust = 0.5, size = 12),
-    axis.title.x = element_text(face = "bold", margin = margin(t = 10)),
-    axis.title.y = element_text(face = "bold", margin = margin(r = 10)),
-    legend.position = "top",
-    legend.title = element_text(face = "bold")
-  )
-
-
-
-```
-
 ### Impact of Methodology on Poll Results
 
-Polling methodology is a critical factor that influences the results of any survey. Polls were categorized according to their methodology (e.g., Online Panel, Phone Interview) to evaluate how different polling methods might affect the percentage of support (pct) for each candidate. For each polling methodology, the average pct for Kamala Harris and Donald Trump was calculated and compared. This analysis aimed to determine whether specific methodologies consistently resulted in higher or lower support for either candidate. Comparison of candidate vote percentages by polling methodology is demonstrated by [@tbl-methodology] Discussion: We observed potential biases in support based on the polling method, providing insights into which methodologies might offer more reliable forecasts.
+Polling methodology is a critical factor that influences the results of any survey. Polls were categorized according to their methodology (e.g., Online Panel, Phone Interview) to evaluate how different polling methods might affect the percentage of support (pct) for each candidate. For each polling methodology, the average pct for Kamala Harris and Donald Trump was calculated and compared. This analysis aimed to determine whether specific methodologies consistently resulted in higher or lower support for either candidate. Comparison of candidate vote percentages by polling methodology is demonstrated by [@tbl-methodology]. Evidently Harris has higher support across all platforms, but significantly more for mail-to-web, mail-to-phone and probability panel.
 
-```{r}
+```{r, fig.pos='H'}
 #| label: tbl-methodology
 #| tbl-cap: "Table of Methodologies comparing the Mean Support Percentage for Donald Trump and Kamala Harris with Difference (Kamala Harris - Donald Trump)"
 #| echo: false
@@ -279,9 +235,9 @@ reliability_table
 
 ### Sample Size and Poll Accuracy
 
-The impact of sample size (sample_size) on the accuracy of polling results was examined. Larger sample sizes are typically considered more reliable, prompting the categorization of polls into small, medium, and large groups based on sample size. For each group, the average percentage of support (pct) for Kamala Harris and Donald Trump was calculated, and variability within each sample size category was analyzed to evaluate the reliability of the results. A chart[@fig-samplesize] comparing candidate vote percentages by sample size category. Discussion: The results suggest whether larger sample sizes produce more accurate and reliable forecasts, helping us to understand the potential limitations of smaller polls.
+The impact of sample size *sample_size* on the accuracy of polling results was examined. Larger sample sizes are typically considered more reliable, prompting the categorization of polls into small, medium, and large groups based on sample size. For each group, the average percentage of support *pct* for Kamala Harris and Donald Trump was calculated, and variability within each sample size category was analyzed to evaluate the reliability of the results. [@fig-samplesize] comparing candidate vote percentages by sample size category. Discussion: The results suggest whether larger sample sizes produce more accurate and reliable forecasts, helping us to understand the potential limitations of smaller polls.
 
-```{r}
+```{r, fig.pos='H'}
 #| label: fig-samplesize
 #| fig-cap: "Candidate Vote Percentages by Sample Size Category"
 #| echo: false
@@ -336,48 +292,19 @@ ggplot(summary_data_sample_size, aes(x = sample_size_category, y = avg_pct, fill
 
 ```
 
-### Sponsorship and Bias in Polling
 
-Finally, the potential bias of polls sponsored by partisan organizations was assessed to determine whether such sponsorship influenced support for the associated candidate. The vote percentages (pct) for Kamala Harris and Donald Trump were compared in polls sponsored by Democratic-leaning and Republican-leaning organizations (sponsor_candidate_party). By calculating the average pct for each candidate within partisan-sponsored polls, this analysis explored whether partisan sponsorship resulted in a systematic overestimation of support for a particular candidate. A comparison of the polling results in partisan-sponsored polls, broken down by party affiliation is shown by [@fig-sponsorship]. Discussion: This analysis reveals potential biases in partisan-sponsored polls and assesses the objectivity of different polling organizations.
+## Data Manipulation and Cleaning:
 
-```{r}
-#| label: fig-sponsorship
-#| fig-cap: "Vote Percentages by Partisan Sponsorship"
-#| echo: false
-# Calculate the average pct and standard deviation for each candidate by sponsorship type
-sponsorship_summary_data <- data %>%
-  filter(sponsor_candidate_party != "Non-Partisan") %>%  # Focus on partisan-sponsored polls
-  group_by(candidate_name, sponsor_candidate_party) %>%
-  summarise(
-    avg_pct = mean(pct),
-    sd_pct = sd(pct),
-    .groups = 'drop'
-  )
+The data was cleaned, filtered and mutated to better align with our prediction model. The software and packages used have been highlighted in @sec-dataoverview. The key steps of our cleaning process were:
 
-# Create the bar chart comparing vote percentages by sponsorship type
-ggplot(sponsorship_summary_data, aes(x = sponsor_candidate_party, y = avg_pct, fill = candidate_name)) +
-  geom_bar(stat = "identity", position = position_dodge(), width = 0.7, color = "black", alpha = 0.8) +
-  geom_errorbar(aes(ymin = avg_pct - sd_pct, ymax = avg_pct + sd_pct), 
-                width = 0.2, 
-                position = position_dodge(0.7)) +
-  labs(
-    x = "Sponsorship (Party Affiliation)",
-    y = "Average Support Percentage (%)",
-    fill = "Candidate"
-  ) +
-  scale_fill_manual(values = c("Kamala Harris" = "#1f78b4", "Donald Trump" = "#e31a1c")) +
-  theme_minimal(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold", hjust = 0.5, size = 16),
-    plot.subtitle = element_text(hjust = 0.5, size = 12),
-    axis.title.x = element_text(face = "bold", margin = margin(t = 10)),
-    axis.title.y = element_text(face = "bold", margin = margin(r = 10)),
-    axis.text.x = element_text(angle = 0, hjust = 0.5),
-    legend.position = "top",
-    legend.title = element_text(face = "bold")
-  )
+- Filtered out lower quality polls by only keeping polls that met a set numeric grade threshold (*numeric_grade* \>= 2.5).
+- Filtered out pollsters that had less than 5 entries.
+- Filtered out data that was collected before July 21st, 2024.
+- Added a variable *num_trump* to count the number of votes for Donald Trump using pct.
+- For data entries where the state was missing, they were categorised as “National”, to standardize the data.
+- Added a binary variable *is_national*, where a value of 1 indicates that the vote was national.
 
-```
+The dataset had several other variables that we did not include in our analysis. These variables were either majorly missing values or not informative enough to be included.
 
 ## Measurement and Limitations
 
@@ -391,7 +318,7 @@ This dataset comes with several important measurement and limitations:
 
 **Participation Bias**: Even with strict rules for polling, certain biases remain possible, such as selection bias in survey participation and response bias due to social desirability factors.
 
-# Statistical Model and Analysis
+# Statistical Model and Analysis {#sec-model}
 
 ## Model Overview
 
@@ -399,7 +326,7 @@ The goal of our modeling is to predict which candidate from Donald Trump and Kam
 
 We utilized both traditional linear models and Bayesian models. The Bayesian approach, in particular, allows us to incorporate prior beliefs and better quantify uncertainty, which is crucial given the inherent variability in polling data.
 
-#### Model Specifications
+### Model Specifications
 
 We constructed four models of increasing complexity:
 
@@ -419,7 +346,9 @@ is_national, to Model 2 to differentiate between national and state-specific pol
 
 **Model 4**: A Bayesian model implemented using the `rstanarm` package, incorporating the same predictors as Model 2 but allowing for more robust estimation under uncertainty.
 
-### We mathematically define these models as follows:
+### Model Definitions
+
+We mathematically define these models as follows:
 
 #### Model 1
 
@@ -451,33 +380,28 @@ $$
 \beta_0, \beta_1, \gamma_j, \delta \sim \text{Normal}(0, 5), \quad \sigma \sim \text{Exponential}(1)
 $$
 
+## Variables and Justification
 
-
-#### Variables and Justification
-
-1.  **Dependent Variable**: ( y_i ) (support percentage, `pct`).
-2.  **Predictors**:
-    -   **(** \text{end\_date} ): Captures time trends, which are essential in understanding shifts in public opinion.
-    -   **(** \text{pollster} ): Accounts for differences in polling methodologies and potential biases.
-    -   **(** \text{is\_national} ): Differentiates between polls conducted at the national level and those specific to individual states, as national polls tend to exhibit different characteristics and sample compositions compared to state polls.
+1. **Dependent Variable**: $y_i$ which refers to support percentage, `pct`.
+2. **Predictors**:
+    -  **end_date:** Captures time trends, which are essential in understanding shifts in public opinion.
+    -  **pollster:** Accounts for differences in polling methodologies and potential biases.
+    -  **is\_national**: Differentiates between polls conducted at the national level and those specific to individual states, as national polls tend to exhibit different characteristics and sample compositions compared to state polls.
 
 These modeling choices reflect insights from the data section, where we observed systematic variations in support percentages over time, across pollsters, and between national and state polls.
 
-#### Model Justification
+## Model Justification
 
 The modeling approach was designed to balance interpretability and predictive power:
 
-**Model 1** serves as a baseline, capturing the temporal trend.
-
-**Model 2** addresses variability between pollsters, which is crucial given differences in methodologies and sample recruitment.
-
-**Model 3** adds another layer of nuance by accounting for the national vs. state-specific distinction.
-
-**Model 4** employs Bayesian inference, allowing us to incorporate uncertainty and use prior distributions for more robust predictions.
+- **Model 1** serves as a baseline, capturing the temporal trend.
+- **Model 2** addresses variability between pollsters, which is crucial given differences in methodologies and sample recruitment.
+- **Model 3** adds another layer of nuance by accounting for the national vs. state-specific distinction.
+- **Model 4** employs Bayesian inference, allowing us to incorporate uncertainty and use prior distributions for more robust predictions.
 
 The Bayesian approach is particularly useful given the variability in polling data. Using `rstanarm`, we employ default weakly informative priors, which are appropriate given the lack of strong prior information. These priors help regularize the estimates and prevent overfitting.
 
-#### Assumptions, Limitations, and Circumstances
+## Assumptions, Limitations, and Circumstances
 
 1.  **Assumptions**:
     -   Linear relationships between predictors and the outcome.
@@ -490,21 +414,18 @@ The Bayesian approach is particularly useful given the variability in polling da
     -   The models may be less appropriate in highly volatile electoral environments where sudden shifts in public opinion occur.
     -   The temporal model assumes a relatively smooth trend, which may not hold in the presence of significant events influencing voter sentiment.
 
-#### Software and Model Validation
+## Software and Model Validation
 
 The models were implemented in R using the `tidyverse` and `rstanarm` packages. We assessed model performance using:
 
-**AIC/BIC**: For model selection based on goodness-of-fit and penalization for complexity.
-
-**Cross-validation**: (To be detailed further in the appendix) to evaluate out-of-sample performance.
-
-**Residual Diagnostics**: To check for violations of model assumptions.
-
-**Model Convergence**: Monitored using diagnostics provided by `rstanarm` for the Bayesian model.
+- **AIC/BIC**: For model selection based on goodness-of-fit and penalization for complexity.
+- **Cross-validation**: (To be detailed further in the appendix) to evaluate out-of-sample performance.
+- **Residual Diagnostics**: To check for violations of model assumptions.
+- **Model Convergence**: Monitored using diagnostics provided by `rstanarm` for the Bayesian model.
 
 The results and details are in @sec-model-details.
 
-#### Strengths, Weaknesses, and Final Model Choice
+## Strengths, Weaknesses, and Final Model Choice
 
 -   **Strengths**: The models are interpretable and straightforward, with the Bayesian approach providing a robust framework for uncertainty quantification.
 -   **Weaknesses**: Potential oversimplification and assumptions of linearity. Future iterations could explore non-linear effects or hierarchical models.
@@ -512,52 +433,24 @@ The results and details are in @sec-model-details.
 
 Our final model selection and analysis provide a reliable and transparent prediction framework for Kamala Harris’s support in the 2024 US election.
 
-# Results
+# Results {#sec-results}
 
 To project the outcome of the 2024 U.S. Presidential election, we utilized a statistical model that leverages polling data from FiveThirtyEight to predict overall support for each candidate. Our approach employs a regression model that incorporates poll end dates and pollster-specific adjustments, enabling us to generate a "poll-of-polls" forecast and relay these results as a predictor of election outcomes.
 
-**1. Prediction of Polling-Based Support:** Using Model 2, we estimated support levels by regressing polling outcomes on poll end dates and pollster-specific indicators. This model was applied to generate predicted support percentages for each candidate over the polling period, accounting for variations across pollsters (see Table 1 for regression output). These estimates reflect the predicted level of support for each candidate as the election approaches, adjusted for biases that are characteristic of individual polling organizations.
+ **1. Prediction of Polling-Based Support:** Using Model 2, we estimated support levels by regressing polling outcomes on poll end dates and pollster-specific indicators. This model was applied to generate predicted support percentages for each candidate over the polling period, accounting for variations across pollsters (see Table 1 for regression output). These estimates reflect the predicted level of support for each candidate as the election approaches, adjusted for biases that are characteristic of individual polling organizations.
 
-**2. Time-Based Trend Analysis:** By incorporating poll end dates, our model captures temporal trends, allowing us to observe shifts in candidate support over time. Figure 1 displays the predicted support levels for each candidate over the final months leading up to the election, highlighting any momentum or shifts that may favor one candidate. This visualization provides insight into how public opinion has evolved closer to the election date.
+ **2. Time-Based Trend Analysis:** By incorporating poll end dates, our model captures temporal trends, allowing us to observe shifts in candidate support over time.
 
-**3. Adjustment for Pollster-Specific Biases:** Pollster biases can significantly influence polling averages. Our model addresses these variations through the pollster-specific coefficients \( \gamma_j \), which adjust each pollster's results based on historical tendencies. Figure 2 illustrates these adjustments, showing how certain pollsters tend to lean in favor of one candidate over another. This correction improves the reliability of our aggregated forecast by balancing these systematic biases.
+ **3. Adjustment for Pollster-Specific Biases:** Pollster biases can significantly influence polling averages. Our model addresses these variations through the pollster-specific coefficients $\gamma_j$, which adjust each pollster's results based on historical tendencies. 
 
-**4. Estimation of Overall Support:** Aggregating the predicted support from all polls, we computed an average prediction for each candidate as election day nears. This aggregation provides a summary of anticipated national-level support based on polling data and adjusted for timing and pollster effects (see Table 2 for summary statistics of aggregated support levels). This result allows for a more precise comparison of each candidate's standing in the final stretch of the campaign.
+ **4. Estimation of Overall Support:** Aggregating the predicted support from all polls, we computed an average prediction for each candidate as election day nears. This aggregation provides a summary of anticipated national-level support based on polling data and adjusted for timing and pollster effects. This result allows for a more precise comparison of each candidate's standing in the final stretch of the campaign.
 
-**5. Interpretation of Results:** The analysis suggests that [Candidate A] holds a lead in projected support, with a predicted margin of [X percentage points] over [Candidate B]. This result implies a favorable position for [Candidate A], assuming that polling trends continue as projected. While this forecast is based on aggregate polling data, the adjustments for time trends and pollster effects lend robustness to the model's predictions, offering a refined projection of likely support levels for each candidate.
+ **5. Interpretation of Results:** The analysis suggests that Kamala Harris holds a lead in projected support, with a predicted margin of 2% over Donald Trump. This result implies a favorable position for Harris, assuming that polling trends continue as projected. While this forecast is based on aggregate polling data, the adjustments for time trends and pollster effects lend robustness to the model's predictions, offering a refined projection of likely support levels for each candidate.
 
 This methodology effectively combines poll end dates and pollster adjustments, bridging raw polling data with refined predictions of national support. By adjusting for bias and temporal effects, our model provides a comprehensive forecast that can inform expectations about the election outcome.
 
 
-```{r}
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
-
-
-
-first_model <-
-  readRDS(file = here::here("models/first_model.rds"))
-```
-
-```{r}
-#| echo: false
-#| eval: true
-#| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
-#| warning: false
-
-modelsummary::modelsummary(
-  list(
-    "First model" = first_model
-  ),
-  statistic = "mad",
-  fmt = 2
-)
-```
-
-# Discussion
+# Discussion {#sec-discussion}
 
 ## Summary of Findings
 This study utilizes polling data to project the results of the 2024 U.S. Presidential election between Kamala Harris and Donald Trump. We developed a multiple linear regression model that predicts state-level polling outcomes by incorporating the end date of each poll and accounting for differences in polling methodology across various organizations. By aggregating state-level predictions and mapping them to the U.S. Electoral College framework, we were able to estimate the potential electoral vote count for each candidate. Our model suggests that Kamala Harris has an advantage in terms of projected electoral votes, signaling a possible pathway to victory based on the current polling trends. These findings underscore the effectiveness of using a ‘poll-of-polls’ approach and highlight the importance of controlling for both time trends and pollster-specific biases in forecasting.
@@ -580,7 +473,7 @@ Finally, there is room for improving the communication of model results to the p
 
 \appendix
 
-# Appendix 1 {.unnumbered}
+# Appendix A: YouGov's Polling Methodology {#sec-appendix}
 
 YouGov has been a popular polling organization in predicting U.S. elections for a long time, they have experience predicting US elections in the past. One of the key reasons for us to select YouGov to dive into it is their innovative use of an advanced statistical model known as Multilevel Regression with Post-stratification (MRP). This model allows YouGov to have detailed predictions by using survey data with demographic background information, ensuring the representativeness of broader populations.
 
@@ -612,7 +505,7 @@ Their surveys are completely online, and therefore limited to individuals with i
 
 \newpage
 
-# Appendix B: Idealized Survey Methodology and Survey Design
+# Appendix B: Idealized Survey Methodology and Survey Design {#sec-appendixb}
 
 ## Methodology Overview
 
@@ -630,7 +523,7 @@ We will combine Stratified Sampling and Quota Sampling. Stratification: Stratifi
 
 To improve representation, quota sampling is used within each stratum. This will involve collecting data until the predetermined quotas for each stratum are met (Thompson, 2012). This approach will ensure that the sample is more representative of the broader population, better to make a generalization.
 
-### Idefitiying Strata:
+### Identifying Strata:
 
 The target population consists of eligible voters in the U.S., which can be further divided into strata based on key demographic characteristics and grouping factors identified in the previous stage. The criteria for defining these strata include age, ethnicity, income level, education, and geographic location [@leighley2013who]. For example, we can have: Age: 18-29, 30-44, 45-59, 60+ Income: Low-income (\<\$40,000), Middle-income (\$40,000-\$100,000), High-income (\>\$100,000) Political Affiliation: Democrat, Republican, Independent, Other Set Quotas: Within the defined strata, we will establish quotas for each subgroup to ensure adequate representation based on key demographic features. These quotas will be determined using recent census data and voter registration records, in line with methodologies from reliable national polling (Keeter et al., 2016). A well-designed quota system will enhance balanced representation across the defined strata. For example, we can implement: Age: 18-29: 15% (180 respondents) 30-44: 25% (300 respondents) 45-59: 30% (360 respondents) 60+: 30% (360 respondents) Swing States: An important planning consideration is our focus on swing states to enhance the precision and efficiency of our election forecast. Swing states, characterized by competitive races, significantly influence the final outcome. In the 2024 election, these states could realistically be won by either Democrat Kamala Harris or Republican Donald Trump. Key swing states include Arizona, Georgia, Michigan, Nevada, North Carolina, Pennsylvania, and Wisconsin, where both major campaigns are actively targeting undecided voters [@fitzgerald2024seven].
 
