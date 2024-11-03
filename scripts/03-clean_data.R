@@ -146,7 +146,7 @@ filtered_data <- raw_data |>
   ) |>
   filter(end_date >= as.Date("2024-07-21")) |> # When Harris declared
   mutate(
-    num_trump = round((pct / 100) * sample_size, 0) # Need number not percent for some models
+    num_harris = round((pct / 100) * sample_size, 0) # Need number not percent for some models
   )
 
 
@@ -156,7 +156,7 @@ filtered_data <- filtered_data %>%
     pollster_id, pollster, state,
     start_date, end_date, sample_size, population, race_id,
     cycle, election_date, candidate_name, pct, numeric_grade, methodology,
-    num_trump, is_national
+    num_harris, is_national
   )
 na_counts <- filtered_data %>%
   summarise(across(everything(), ~ sum(is.na(.))))
