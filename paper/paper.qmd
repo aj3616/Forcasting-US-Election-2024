@@ -613,8 +613,22 @@ Survey Design and Implementation (30% - \$30,000): Questionnaire development, pi
 
 ### Google Forms Survey Link
 
-Include a link to your Google Forms survey here. Survey Link Copy of the Survey Questions
+https://forms.gle/d1pLxx5UNsC9x63s9
 
+```{r,echo=FALSE}
+knitr::include_graphics("survey/1.png")
+knitr::include_graphics("survey/2.png")
+knitr::include_graphics("survey/3.png")
+knitr::include_graphics("survey/4.png")
+knitr::include_graphics("survey/5.png")
+knitr::include_graphics("survey/6.png")
+knitr::include_graphics("survey/7.png")
+knitr::include_graphics("survey/8.png")
+knitr::include_graphics("survey/9.png")
+knitr::include_graphics("survey/10.png")
+
+
+```
 # Additional data details
 
 # Model details {#sec-model-details}
