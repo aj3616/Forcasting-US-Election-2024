@@ -59,11 +59,11 @@ If tasked with forecasting the US presidential election with a $100K budget, we 
 Sampling Approach: Detailed explanation of the sampling strategy, respondent recruitment, and validation techniques.
 Survey Platform: A link to the Google Form used for the survey and a copy of the survey included in the appendix.
 Poll Aggregation: Strategy for aggregating data from multiple surveys to improve reliability and accuracy.
-Link to Survey TODO
+Link to Survey：https://forms.gle/d1pLxx5UNsC9x63s9
 
 ### License
 
-This project is licensed under the MIT License. See the LICENSE file for more details. TODO:
+This project is licensed under the MIT License.
 
 ### Acknowledgments
 
